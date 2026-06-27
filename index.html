@@ -12,6 +12,14 @@
   </header>
 
   <main class="container">
+    <!-- Backup-Pflicht -->
+    <div class="notice notice-warn" role="alert">
+      <strong>Wichtig – Backup-Pflicht:</strong>
+      Lege vor dem Downgrade eine Sicherung deiner Original-Objekte an.
+      Arbeite niemals ohne Backup. Geschützte Objekte und ältere Versionen lassen
+      sich nicht verlustfrei wiederherstellen.
+    </div>
+
     <!-- 1. Quelle -->
     <section class="card">
       <div class="section-label">1 · Quelle</div>
@@ -71,6 +79,21 @@
       <div class="section-label">7 · Ergebnis</div>
       <div id="summary"></div>
     </section>
+    <!-- Footer: Haftungsausschluss, Open Source, Version -->
+    <footer class="app-footer">
+      <p class="disclaimer">
+        <strong>Haftungsausschluss:</strong> Diese Software wird ohne jede Gewähr
+        bereitgestellt. Die Nutzung erfolgt auf eigene Verantwortung. Für Datenverlust,
+        fehlerhafte oder unvollständige Konvertierungen wird keine Haftung übernommen.
+        Archicad und GDL sind Marken der GRAPHISOFT SE; dieses Werkzeug nutzt den
+        mitgelieferten <code>LP_XMLConverter</code>, steht aber in keiner Verbindung zu GRAPHISOFT.
+      </p>
+      <p class="footer-meta">
+        Open Source (MIT) ·
+        <a href="https://github.com/gdl-joe/GDL-Downgrader" target="_blank" rel="noopener">github.com/gdl-joe/GDL-Downgrader</a>
+        · <span id="app-version">v–</span>
+      </p>
+    </footer>
   </main>
 
   <script src="renderer.js"></script>

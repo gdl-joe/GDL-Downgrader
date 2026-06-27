@@ -18,6 +18,7 @@ function log(text) {
 }
 
 async function init() {
+  window.api.getVersion().then(v => { $('app-version').textContent = 'v' + v; });
   state.converters = await window.api.scanConverters();
   const sel = $('target-version');
   sel.innerHTML = '';

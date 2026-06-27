@@ -32,6 +32,8 @@ function createWindow() {
 
 ipcMain.handle('scan-converters', () => scanConverters());
 
+ipcMain.handle('get-version', () => app.getVersion());
+
 // mode: 'file' -> einzelnes .gsm, 'folder' -> Verzeichnis.
 // Getrennte Modi, weil der kombinierte openFile+openDirectory-Dialog auf Windows
 // kein Verzeichnis auswählen lässt.

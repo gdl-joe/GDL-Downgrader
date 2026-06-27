@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   scanConverters: () => ipcRenderer.invoke('scan-converters'),
+  getVersion: () => ipcRenderer.invoke('get-version'),
   selectSource: (mode) => ipcRenderer.invoke('select-source', mode),
   selectDest: () => ipcRenderer.invoke('select-dest'),
   analyzeSource: (p) => ipcRenderer.invoke('analyze-source', p),
