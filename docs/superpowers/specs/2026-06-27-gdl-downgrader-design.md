@@ -84,6 +84,15 @@ sortiert angezeigt.
 - Code ≥ 43 → Version = Code − 18 (z.B. 43=AC25, 46=AC28, 47=AC29)
 - 41=AC24, 40=AC23, 39=AC22, 38=AC21, 37=AC20, 36=AC19, 35=AC18, 34=AC17, 32=AC16
 
+**Mehrere Installationen derselben Version** (verifiziert 2026-06-27 auf Jochens Rechner:
+`AC27` + `AC27AUT`, `AC29` + `Archicad 29`): Der Scan liefert **jede Installation einzeln**
+(unterscheidbar über `name` = Ordnername und `path`). Es wird **nicht** dedupliziert.
+Folge für die UI: Die Zielversion-Auswahl referenziert einen **konkreten Converter**
+(über seinen `path`), nicht nur eine Versionsnummer — der Nutzer wählt die gewünschte
+Installation selbst. Für die **Quellseite** genügt irgendein installierter Converter der
+erkannten Quellversion (Decompile ist innerhalb einer Version installationsunabhängig);
+`findConverter(list, version)` liefert dafür den ersten Treffer.
+
 ---
 
 ## 5. UI-Ablauf
