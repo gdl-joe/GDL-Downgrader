@@ -3,6 +3,7 @@ dist/
 dist-portable/
 build-cache/
 .DS_Store
+*.p8
 ~/gdl_downgrade_temp/
 GDLnucleus/
 GDL-XML-main/
