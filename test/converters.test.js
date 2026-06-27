@@ -86,6 +86,15 @@ test('scanConverters returns empty array when base dir missing', () => {
   assert.deepStrictEqual(scanConverters('darwin', ['/nonexistent/xyz']), []);
 });
 
+test('scanConverters deduplicates converters reached via duplicate base dirs', () => {
+  // Bildet das Windows-Problem nach: zwei Basis-Pfade, die auf denselben Ordner
+  // zeigen (hier derselbe Pfad doppelt), dürfen Converter nicht verdoppeln.
+  const base = makeMacConverterTree();
+  const result = scanConverters('darwin', [base, base]);
+  assert.strictEqual(result.length, 2); // AC29 + AC24, nicht 4
+  assert.deepStrictEqual(result.map(c => c.version), [29, 24]);
+});
+
 const { maxConverterVersion, findDecompileConverter } = require('../lib/converters');
 
 const DC_LIST = [
