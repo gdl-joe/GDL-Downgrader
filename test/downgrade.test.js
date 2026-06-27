@@ -142,6 +142,43 @@ test('downgradeFile does not pass -password to recompile when none given', async
   assert.ok(!calls[1].args.includes('-password'));
 });
 
+test('downgradeFile reports warnings for commands newer than the target version', async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
+  // Fake-Runner schreibt beim Decompile ein temp.xml mit einem zu neuen Befehl
+  const run = async (binPath, args) => {
+    if (args.includes('libpart2xml')) {
+      const tempXml = args[args.length - 1];
+      fs.writeFileSync(tempXml, '<Script_3D><![CDATA[ MEPSYSTEM 1\nBLOCK 1,1,1 ]]></Script_3D>');
+    }
+    return { code: 0, output: 'ok' };
+  };
+  const result = await downgradeFile({
+    sourceConverter: AC29, targetConverter: AC24,
+    sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
+    tempRoot: tmp, runCommand: run,
+    commandVersions: { MEPSYSTEM: 27, BLOCK: 1 }
+  });
+  assert.strictEqual(result.status, 'success');
+  assert.ok(result.warnings.some(w => w.command === 'MEPSYSTEM' && w.since === 27));
+  assert.ok(!result.warnings.some(w => w.command === 'BLOCK'));
+});
+
+test('downgradeFile has empty warnings when no commandVersions given', async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
+  const run = async (binPath, args) => {
+    if (args.includes('libpart2xml')) {
+      fs.writeFileSync(args[args.length - 1], '<Script_3D><![CDATA[ MEPSYSTEM 1 ]]></Script_3D>');
+    }
+    return { code: 0, output: 'ok' };
+  };
+  const result = await downgradeFile({
+    sourceConverter: AC29, targetConverter: AC24,
+    sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
+    tempRoot: tmp, runCommand: run
+  });
+  assert.deepStrictEqual(result.warnings, []);
+});
+
 const { runBatch } = require('../lib/downgrade');
 
 const CONVERTERS = [

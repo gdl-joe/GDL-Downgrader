@@ -82,6 +82,8 @@ td { padding: .4rem .5rem; border-bottom: 1px solid var(--border); }
   line-height: 1.7; color: var(--text); white-space: pre-wrap;
 }
 .summary-line { padding: .3rem 0; font-size: .85rem; }
+.cmd-warn { color: var(--text-muted); padding-left: .8rem; font-size: .82rem; }
+.cmd-warn { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
 /* Hinweis-Boxen */
 .notice {

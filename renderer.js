@@ -153,6 +153,7 @@ function handleResults(results) {
   const ok = results.filter(r => r.status === 'success').length;
   const locked = state.lockedRels.length;
   const failed = results.filter(r => r.status === 'error').length;
+  const flagged = results.filter(r => r.warnings && r.warnings.length > 0);
   summary.innerHTML = `<div class="summary-line status-ok">✓ ${ok} erfolgreich</div>
     <div class="summary-line status-locked">🔒 ${locked} passwortgeschützt (Passwort eingeben und erneut starten)</div>
     <div class="summary-line status-warn">⚠ ${failed} fehlgeschlagen</div>`;
@@ -162,6 +163,22 @@ function handleResults(results) {
     d.textContent = `${r.rel}: ${r.reason || 'Fehler'}`;
     summary.appendChild(d);
   });
+
+  // Befehls-Warnungen: Objekte mit Befehlen, die es in der Zielversion noch nicht gab
+  if (flagged.length > 0) {
+    const head = document.createElement('div');
+    head.className = 'summary-line status-locked';
+    head.textContent = `⚠ ${flagged.length} Objekt(e) nutzen evtl. zu neue GDL-Befehle – bitte prüfen:`;
+    summary.appendChild(head);
+    flagged.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'summary-line cmd-warn';
+      const list = r.warnings.map(w => `${w.command} (ab AC${w.since})`).join(', ');
+      d.textContent = `• ${r.rel}: ${list}`;
+      summary.appendChild(d);
+    });
+  }
+
   $('summary-card').hidden = false;
   $('btn-start').disabled = false;
 }

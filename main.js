@@ -8,6 +8,14 @@ const { runCommand } = require('./lib/run-command');
 
 const TEMP_ROOT = path.join(os.homedir(), 'gdl_downgrade_temp');
 
+// Wissensbasis: GDL-Befehl -> ab welcher Archicad-Version verfügbar (pflegbare JSON).
+let COMMAND_VERSIONS = {};
+try {
+  COMMAND_VERSIONS = require('./data/gdl-command-versions.json').commands || {};
+} catch (e) {
+  COMMAND_VERSIONS = {};
+}
+
 // Reste eines evtl. abgestürzten früheren Laufs beim Start entfernen.
 try { fs.rmSync(TEMP_ROOT, { recursive: true, force: true }); } catch (e) { /* ignore */ }
 
@@ -84,6 +92,7 @@ ipcMain.handle('run-downgrade', async (event, params) => {
       runCommand: (bin, args) => runCommand(bin, args, (chunk) =>
         event.sender.send('batch-log', chunk)),
       passwords,
+      commandVersions: COMMAND_VERSIONS,
       onProgress: (p) => event.sender.send('batch-progress', p)
     });
     return results;
