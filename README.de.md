@@ -9,6 +9,19 @@ und Passwort-Handling. Dunkles UI im Stil von gdlschmiede.de.
 
 ---
 
+## Download
+
+Die aktuellen Pakete liegen auf der **[Releases-Seite](https://github.com/gdl-joe/GDL-Downgrader/releases/latest)**:
+
+- **macOS** (Apple Silicon): `GDL Downgrader-…-arm64.dmg` — unsigniert; beim ersten Start über
+  *Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen"* starten.
+- **Windows** (x64): `GDL-Downgrader-…-win-x64-portable.zip` — portabel, keine Installation;
+  entpacken und `GDL Downgrader starten.cmd` doppelklicken.
+
+Vollständige Installations- und Bedienhinweise im [HANDBUCH.md](HANDBUCH.md).
+
+---
+
 ## Wie es funktioniert
 
 Pro Objekt zwei Schritte mit **zwei verschiedenen Convertern**:
