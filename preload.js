@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   scanConverters: () => ipcRenderer.invoke('scan-converters'),
-  selectSource: () => ipcRenderer.invoke('select-source'),
+  selectSource: (mode) => ipcRenderer.invoke('select-source', mode),
   selectDest: () => ipcRenderer.invoke('select-dest'),
   analyzeSource: (p) => ipcRenderer.invoke('analyze-source', p),
   runDowngrade: (params) => ipcRenderer.invoke('run-downgrade', params),
