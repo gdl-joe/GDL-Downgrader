@@ -6,7 +6,70 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>GDL Downgrader</h1>
+  <header class="app-header">
+    <span class="logo-mark"></span>
+    <h1>GDL <span class="accent">Downgrader</span></h1>
+  </header>
+
+  <main class="container">
+    <!-- 1. Quelle -->
+    <section class="card">
+      <div class="section-label">1 · Quelle</div>
+      <button id="btn-source" class="btn-secondary">Objekt oder Ordner wählen…</button>
+      <div id="source-path" class="path-display"></div>
+    </section>
+
+    <!-- 2. Analyse-Tabelle -->
+    <section class="card" id="analysis-card" hidden>
+      <div class="section-label">2 · Gefundene Objekte</div>
+      <table id="analysis-table">
+        <thead><tr><th>Objekt</th><th>Quellversion</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- 3. Zielversion + 4. Zielverzeichnis -->
+    <section class="card row">
+      <div>
+        <div class="section-label">3 · Zielversion</div>
+        <select id="target-version"></select>
+      </div>
+      <div>
+        <div class="section-label">4 · Zielverzeichnis</div>
+        <button id="btn-dest" class="btn-secondary">Ordner wählen…</button>
+        <div id="dest-path" class="path-display"></div>
+      </div>
+    </section>
+
+    <!-- 5. Passwörter -->
+    <section class="card" id="password-card" hidden>
+      <div class="section-label">5 · Passwortgeschützte Objekte 🔒</div>
+      <div class="pw-bulk">
+        <input type="password" id="pw-all" placeholder="Passwort für alle…">
+        <button id="btn-apply-all" class="btn-secondary">Auf alle anwenden</button>
+      </div>
+      <div id="password-list"></div>
+    </section>
+
+    <!-- 6. Start + Log -->
+    <section class="card">
+      <button id="btn-start" class="btn-primary" disabled>Downgrade starten</button>
+      <div class="progress-wrap"><div id="progress-bar"></div></div>
+      <div class="code-window">
+        <div class="code-titlebar">
+          <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        </div>
+        <pre id="log" class="code-body"></pre>
+      </div>
+    </section>
+
+    <!-- 7. Zusammenfassung -->
+    <section class="card" id="summary-card" hidden>
+      <div class="section-label">7 · Ergebnis</div>
+      <div id="summary"></div>
+    </section>
+  </main>
+
   <script src="renderer.js"></script>
 </body>
 </html>
