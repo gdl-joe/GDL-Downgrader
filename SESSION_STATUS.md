@@ -40,7 +40,15 @@ Zuletzt aktualisiert: 2026-06-27
 - Optional: eigenes App-Icon (derzeit Standard-Electron-Icon).
 - Optional: Intel-(x64)-DMG zusätzlich.
 
-## Offene Probleme / Blockaden
-- Windows-Converter-Pfad auf echtem Windows noch zu verifizieren (in `WINDOWS_BUILD.md`
-  als erster Prüfschritt vermerkt).
-- App/DMG nicht code-signiert (Gatekeeper-/SmartScreen-Hinweis beim ersten Start).
+## Plattform-Verifikation (erledigt)
+- **macOS:** echter Downgrade getestet (Jochen). DMG gebaut + als GitHub Release v1.0.0.
+- **Windows:** auf echter Hardware verifiziert — Converter-Pfad (`C:\Program Files\
+  Graphisoft\Archicad NN\LP_XMLConverter.exe`), echter Downgrade-Test erfolgreich,
+  NSIS-Installer gebaut. Dabei Cross-Platform-Bug gefunden und gefixt (`3bb528e`):
+  doppelte Converter-Listung durch case-insensitive Basisverzeichnisse → Dedup über
+  kanonischen Pfad.
+
+## Offene Punkte
+- Windows-`Setup 1.0.0.exe` (aus aktuellem Repo-Stand) ans GitHub Release v1.0.0 hängen
+  — Datei muss dafür auf den Mac übertragen werden (`gh release upload v1.0.0 …`).
+- App/DMG/EXE nicht code-signiert (Gatekeeper-/SmartScreen-Hinweis beim ersten Start).
