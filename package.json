@@ -1,0 +1,24 @@
+{
+  "name": "gdl-downgrader",
+  "version": "1.0.0",
+  "description": "Downgrade Archicad GDL objects (.gsm) to a lower Archicad version via LP_XMLConverter",
+  "main": "main.js",
+  "author": "b-prisma / Jochen Sühlo",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "de.b-prisma.gdl-downgrader",
+    "productName": "GDL Downgrader",
+    "files": ["main.js", "preload.js", "renderer.js", "index.html", "styles.css", "lib/**/*", "package.json"],
+    "mac": { "target": "dmg", "category": "public.app-category.developer-tools" },
+    "win": { "target": "nsis" }
+  }
+}
