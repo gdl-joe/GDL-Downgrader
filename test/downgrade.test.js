@@ -112,3 +112,95 @@ test('downgradeFile passes password to decompile when given', async () => {
   assert.ok(calls[0].args.includes('-password'));
   assert.ok(calls[0].args.includes('secret'));
 });
+
+test('downgradeFile re-encrypts target with the same password (recompile)', async () => {
+  const { run, calls } = makeRunner([
+    { code: 0, output: 'ok' }, { code: 0, output: 'ok' }
+  ]);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
+  await downgradeFile({
+    sourceConverter: AC29, targetConverter: AC24,
+    sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
+    tempRoot: tmp, runCommand: run, password: 'secret'
+  });
+  // Schritt 2 (xml2libpart) muss -password erhalten, damit der Schutz erhalten bleibt
+  assert.ok(calls[1].args.includes('xml2libpart'));
+  assert.ok(calls[1].args.includes('-password'));
+  assert.ok(calls[1].args.includes('secret'));
+});
+
+test('downgradeFile does not pass -password to recompile when none given', async () => {
+  const { run, calls } = makeRunner([
+    { code: 0, output: 'ok' }, { code: 0, output: 'ok' }
+  ]);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
+  await downgradeFile({
+    sourceConverter: AC29, targetConverter: AC24,
+    sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
+    tempRoot: tmp, runCommand: run
+  });
+  assert.ok(!calls[1].args.includes('-password'));
+});
+
+const { runBatch } = require('../lib/downgrade');
+
+const CONVERTERS = [
+  { version: 29, path: '/c/29', name: 'AC29' },
+  { version: 24, path: '/c/24', name: 'AC24' }
+];
+const TARGET24 = { version: 24, path: '/c/24', name: 'AC24' };
+
+test('runBatch processes all files and isolates failures', async () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'batch-'));
+  const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'batchdst-'));
+  // Fake-Runner: 'locked' im Pfad -> decrypt-Fehler, sonst Erfolg
+  const run = async (binPath, args) => {
+    const joined = args.join(' ');
+    if (joined.includes('locked.gsm')) {
+      return { code: 1, output: 'Could not decrypt library part (wrong password).' };
+    }
+    return { code: 0, output: 'ok' };
+  };
+  const files = [
+    { abs: '/src/ok.gsm', rel: 'ok.gsm', sourceVersion: 29 },
+    { abs: '/src/locked.gsm', rel: 'locked.gsm', sourceVersion: 29 }
+  ];
+  const results = await runBatch({
+    files, converters: CONVERTERS, targetConverter: TARGET24,
+    destDir: dest, tempRoot: tmpRoot, runCommand: run, passwords: {}
+  });
+  const byRel = Object.fromEntries(results.map(r => [r.rel, r.status]));
+  assert.strictEqual(byRel['ok.gsm'], 'success');
+  assert.strictEqual(byRel['locked.gsm'], 'password-required');
+});
+
+test('runBatch reports error when a file source version has no converter', async () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'batchx-'));
+  const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'batchxdst-'));
+  const run = async () => ({ code: 0, output: 'ok' });
+  const results = await runBatch({
+    files: [{ abs: '/src/old.gsm', rel: 'old.gsm', sourceVersion: 99 }],
+    converters: CONVERTERS, targetConverter: TARGET24,
+    destDir: dest, tempRoot: tmpRoot, runCommand: run, passwords: {}
+  });
+  assert.strictEqual(results[0].status, 'error');
+  assert.match(results[0].reason, /source converter/i);
+});
+
+test('runBatch uses per-file password from passwords map', async () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'batch2-'));
+  const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'batch2dst-'));
+  let usedPassword = null;
+  const run = async (binPath, args) => {
+    const i = args.indexOf('-password');
+    if (i >= 0) usedPassword = args[i + 1];
+    return { code: 0, output: 'ok' };
+  };
+  await runBatch({
+    files: [{ abs: '/src/x.gsm', rel: 'x.gsm', sourceVersion: 29 }],
+    converters: CONVERTERS, targetConverter: TARGET24,
+    destDir: dest, tempRoot: tmpRoot, runCommand: run,
+    passwords: { 'x.gsm': 'pw123' }
+  });
+  assert.strictEqual(usedPassword, 'pw123');
+});
