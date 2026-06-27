@@ -49,3 +49,39 @@ test('detectGsmVersion returns null for non-GSM magic', () => {
   fs.writeFileSync(file, Buffer.from([0x00, 0x00, 47, 0, 0, 0, 0, 0]));
   assert.strictEqual(detectGsmVersion(file), null);
 });
+
+const { scanConverters, findConverter } = require('../lib/converters');
+
+function makeMacConverterTree() {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'graphisoft-'));
+  // base/AC29/Archicad 29.app/Contents/MacOS/LP_XMLConverter.app/Contents/MacOS/LP_XMLConverter
+  const conv = path.join(base, 'AC29', 'Archicad 29.app', 'Contents', 'MacOS',
+    'LP_XMLConverter.app', 'Contents', 'MacOS');
+  fs.mkdirSync(conv, { recursive: true });
+  fs.writeFileSync(path.join(conv, 'LP_XMLConverter'), '');
+  const conv24 = path.join(base, 'AC24', 'Archicad 24.app', 'Contents', 'MacOS',
+    'LP_XMLConverter.app', 'Contents', 'MacOS');
+  fs.mkdirSync(conv24, { recursive: true });
+  fs.writeFileSync(path.join(conv24, 'LP_XMLConverter'), '');
+  return base;
+}
+
+test('scanConverters finds mac converters sorted descending', () => {
+  const base = makeMacConverterTree();
+  const result = scanConverters('darwin', [base]);
+  assert.strictEqual(result.length, 2);
+  assert.strictEqual(result[0].version, 29);
+  assert.strictEqual(result[1].version, 24);
+  assert.ok(result[0].path.endsWith('LP_XMLConverter'));
+});
+
+test('findConverter returns the converter for a given version', () => {
+  const base = makeMacConverterTree();
+  const list = scanConverters('darwin', [base]);
+  assert.strictEqual(findConverter(list, 24).version, 24);
+  assert.strictEqual(findConverter(list, 99), null);
+});
+
+test('scanConverters returns empty array when base dir missing', () => {
+  assert.deepStrictEqual(scanConverters('darwin', ['/nonexistent/xyz']), []);
+});
