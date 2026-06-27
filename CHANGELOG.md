@@ -15,6 +15,11 @@ Erste Veröffentlichung.
 - Automatische Erkennung aller installierten Converter (macOS + Windows);
   mehrere Installationen derselben Version (z.B. AC27 / AC27AUT) werden einzeln
   zur Auswahl angeboten.
+- Intelligente Converter-Wahl: zum Decompilieren genügt ein Converter, der das Objekt
+  lesen kann (≥ Quellversion) – der exakte Quell-Converter ist nicht nötig. Ein Objekt
+  wird nur bemängelt, wenn es zu neu für den höchsten installierten Converter ist.
+  Zielversion frei wählbar; bei Ziel = Quelle ohne `-compatibility`.
+- Zweisprachige Oberfläche (Deutsch/Englisch), umschaltbar und gespeichert.
 - Automatische Erkennung der Quellversion jedes Objekts aus dem GSM-Header.
 - Einzelobjekt **oder** rekursiver Verzeichnis-Batch mit Erhalt der Ordnerstruktur.
 - Erkennung passwortgeschützter Objekte; Passworteingabe pro Objekt oder

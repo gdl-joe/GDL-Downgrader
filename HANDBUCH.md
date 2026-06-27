@@ -1,3 +1,5 @@
+**Deutsch** · [English](MANUAL.md)
+
 # GDL Downgrader – Handbuch
 
 Stand: Version 1.0.0
@@ -11,9 +13,10 @@ Archicad-Installation mitgeliefert wird.
 ## 1. Voraussetzungen
 
 - **macOS** oder **Windows**.
-- Mindestens **zwei installierte Archicad-Versionen** bzw. deren Converter:
-  - der Converter **jeder Quellversion**, die du herabstufen willst, und
-  - der Converter der **Zielversion**.
+- Installierte Archicad-Converter:
+  - mindestens **ein Converter, der so neu ist wie dein neuestes Objekt** (neuere
+    Converter lesen ältere Objekte – ein AC21-Objekt braucht keinen AC21-Converter), und
+  - der Converter der **Zielversion** (zum Zurückschreiben).
 - Die App findet alle installierten Converter automatisch:
   - macOS: `/Applications/GRAPHISOFT/*/…/LP_XMLConverter`
   - Windows: `C:\Program Files\GRAPHISOFT\*\LP_XMLConverter.exe`
@@ -45,9 +48,11 @@ npm start
    für ein ganzes Verzeichnis (rekursiv, inkl. Unterordner).
 2. **Gefundene Objekte** – Tabelle mit erkannter Quellversion und Status:
    - ✓ bereit
-   - ⚠ Converter AC… fehlt (Quellversion nicht installiert)
+   - ⚠ AC… zu neu – kein Converter (Objekt neuer als der höchste installierte Converter,
+     daher nicht lesbar)
    - 🔒 geschützt (nach einem ersten Versuch, siehe Abschnitt 5)
-3. **Zielversion** – die gewünschte installierte Converter-Installation auswählen.
+3. **Zielversion** – frei wählbar; es werden alle installierten Converter angeboten. Ist die
+   Zielversion gleich der Quellversion, wird ohne `-compatibility` nur neu kompiliert.
 4. **Zielverzeichnis** – die Ordnerstruktur der Quelle wird dort 1:1 nachgebaut.
 5. **Passwörter** – erscheint nur, wenn geschützte Objekte auftauchen (Abschnitt 5).
 6. **Downgrade starten** – Fortschrittsbalken und Live-Log. Pro Objekt zwei Schritte:
@@ -124,8 +129,9 @@ wie `PROJECT2{4}` wird unterstützt; der Abgleich ist case-insensitiv.
 
 ## 8. Häufige Fragen / Fehlerbehebung
 
-- **„⚠ Converter AC… fehlt"** – Die Quellversion des Objekts ist nicht installiert. Den
-  Decompile-Schritt kann nur der Converter der jeweiligen Quellversion ausführen.
+- **„⚠ AC… zu neu – kein Converter"** – Das Objekt ist neuer als der höchste installierte
+  Converter und kann nicht gelesen werden. Installiere einen Converter, der mindestens so
+  neu ist wie das Objekt.
 - **Zielversion fehlt im Menü** – Es werden nur installierte Converter angeboten. Fehlt die
   gewünschte Zielversion, muss das zugehörige Archicad installiert sein.
 - **Objekt bleibt 🔒 nach Passworteingabe** – Das Passwort war falsch. Erneut eingeben.

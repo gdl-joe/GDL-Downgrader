@@ -1,105 +1,107 @@
+[Deutsch](README.de.md) · **English**
+
 # GDL Downgrader
 
-Desktop-App (macOS + Windows) zum **Downgraden von Archicad-GDL-Objekten** (`.gsm`) von einer
-höheren in eine tiefere Archicad-Version — mithilfe von Graphisofts `LP_XMLConverter`.
-Einzelnes Objekt oder ganze Bibliothek (rekursiv), mit automatischer Quellversionserkennung
-und Passwort-Handling. Dunkles UI im Stil von gdlschmiede.de.
+Desktop app (macOS + Windows) for **downgrading Archicad GDL objects** (`.gsm`) from a
+higher to a lower Archicad version — using Graphisoft's `LP_XMLConverter`.
+Single object or entire library (recursive), with automatic source version detection
+and password handling. Dark UI in the style of gdlschmiede.de.
 
 ---
 
-## Wie es funktioniert
+## How It Works
 
-Pro Objekt zwei Schritte mit **zwei verschiedenen Convertern**:
+Two steps per object using **two different converters**:
 
-1. **Decompile** mit dem Converter der **Quellversion**:
-   `libpart2xml -compatibility <ZIELVERSION> [-password <pw>] -img <temp> quelle.gsm temp.xml`
-2. **Recompile** mit dem Converter der **Zielversion**:
-   `xml2libpart -img <temp> temp.xml ziel.gsm`
+1. **Decompile** with a converter that can read the object (at least as new as the
+   source version). For a real downgrade (target < source) with `-compatibility <TARGETVERSION>`:
+   `libpart2xml -compatibility <TARGETVERSION> [-password <pw>] -img <temp> source.gsm temp.xml`
+2. **Recompile** with the converter of the **target version**:
+   `xml2libpart -img <temp> temp.xml target.gsm`
 
-Das `-compatibility <ZIELVERSION>` ist der entscheidende Schalter für den Downgrade.
+The `-compatibility <TARGETVERSION>` flag is the key switch for the downgrade. If the target
+version equals the source version, the object is only recompiled without `-compatibility`.
 
 ---
 
-## Voraussetzung: installierte Converter
+## Requirement: Installed Converters
 
-Für einen Downgrade müssen **beide** beteiligten `LP_XMLConverter` auf dem Rechner vorhanden
-sein:
+- At least **one converter as new as your newest object** — newer converters can read
+  older objects (an AC21 object does not require an AC21 converter).
+- The converter for the **target version** (for writing back).
 
-- der Converter **jeder vorkommenden Quellversion** (zum Decompilieren) und
-- der Converter der **Zielversion** (zum Recompilieren).
-
-Die App scannt automatisch alle installierten Archicad-Versionen:
+The app automatically scans all installed Archicad versions:
 
 - **macOS:** `/Applications/GRAPHISOFT/*/…/LP_XMLConverter`
 - **Windows:** `C:\Program Files\GRAPHISOFT\*\LP_XMLConverter.exe`
 
-Mehrere Installationen derselben Version (z.B. `AC27` und `AC27AUT`) werden **einzeln**
-angeboten — du wählst die gewünschte Installation selbst.
+Multiple installations of the same version (e.g. `AC27` and `AC27AUT`) are offered
+**individually** — you select the desired installation yourself.
 
-> Im Zielversion-Menü erscheinen nur tatsächlich installierte Converter. Fehlt der Converter
-> einer Quellversion, wird das betroffene Objekt in der Analyse-Tabelle als
-> „⚠ Converter fehlt" markiert.
-
----
-
-## Bedienung
-
-1. **Quelle wählen** — „Objekt wählen…" (einzelne `.gsm`) oder „Ordner wählen…" (rekursiv).
-2. **Gefundene Objekte** — Tabelle mit erkannter Quellversion und Status
-   (✓ bereit / ⚠ Converter fehlt / 🔒 geschützt).
-3. **Zielversion** — gewünschte installierte Converter-Installation wählen.
-4. **Zielverzeichnis** — die Ordnerstruktur der Quelle wird dort 1:1 nachgebaut.
-5. **Passwörter** — erscheint nur, wenn beim Konvertieren geschützte Objekte auftauchen;
-   Passwort pro Objekt oder ein gemeinsames Passwort für alle eingeben, dann erneut starten.
-6. **Downgrade starten** — Fortschritt und Live-Log werden angezeigt.
-7. **Ergebnis** — Zusammenfassung erfolgreich / geschützt / fehlgeschlagen.
-
-Passwortschutz wird beim Konvertieren erkannt (Converter-Meldung
-`Could not decrypt library part`). Geschützte Objekte erscheinen danach im Passwort-Bereich.
+> The target version is freely selectable. An object is only flagged if it is **too new**
+> — that is, newer than the highest installed converter and therefore not readable.
 
 ---
 
-## Entwicklung
+## Usage
+
+1. **Select source** — "Choose object…" (single `.gsm`) or "Choose folder…" (recursive).
+2. **Objects found** — table with detected source version and status
+   (✓ ready / ⚠ too new – no converter / 🔒 protected).
+3. **Target version** — freely selectable from all installed converters.
+4. **Target directory** — the folder structure of the source is reproduced 1:1 there.
+5. **Passwords** — appears only when protected objects are encountered during conversion;
+   enter a password per object or a single shared password for all, then restart.
+6. **Start downgrade** — progress and live log are displayed.
+7. **Result** — summary: succeeded / protected / failed, plus notes on GDL commands that
+   are too new.
+
+Password protection is detected during conversion (converter message
+`Could not decrypt library part`). Protected objects then appear in the password section.
+
+---
+
+## Development
 
 ```bash
-npm install      # Abhängigkeiten (Electron, electron-builder)
-npm start        # App starten
-npm test         # Unit-Tests der Engine (node:test)
-npm run dist     # Installer bauen (macOS: DMG, Windows: NSIS)
+npm install      # Dependencies (Electron, electron-builder)
+npm start        # Start the app
+npm test         # Unit tests for the engine (node:test)
+npm run dist     # Build installer (macOS: DMG, Windows: NSIS)
 ```
 
-Die Konvertierungslogik liegt plattform- und Electron-unabhängig in `lib/`
-(`converters.js`, `downgrade.js`, `run-command.js`) und ist über `npm test` ohne Archicad
-testbar (der Command-Runner wird in den Tests injiziert).
+The conversion logic is platform- and Electron-independent and lives in `lib/`
+(`converters.js`, `downgrade.js`, `run-command.js`). It can be tested via `npm test`
+without Archicad (the command runner is injected in the tests).
 
-### Build-Hinweis
+### Build Notes
 
-- **macOS:** `npm run dist` erzeugt eine `.dmg` in `dist/`.
-- **Windows:** Der NSIS-Installer muss auf einem Windows-Rechner gebaut werden; ein
-  Cross-Build von macOS aus ist nur eingeschränkt möglich.
+- **macOS:** `npm run dist` produces a `.dmg` in `dist/`.
+- **Windows:** The NSIS installer must be built on a Windows machine; cross-building
+  from macOS is only partially possible.
 
 ---
 
-## Weitere Dokumente
+## Further Documents
 
-- [HANDBUCH.md](HANDBUCH.md) — ausführliches Benutzerhandbuch
-- [CHANGELOG.md](CHANGELOG.md) — Versionen & Release Notes
-- [LICENSE](LICENSE) — MIT-Lizenz
-- [data/gdl-command-versions.json](data/gdl-command-versions.json) — pflegbare Wissensbasis
-  für die Befehls-Versions-Prüfung (bitte als GDL-Experte erweitern)
+- [MANUAL.md](MANUAL.md) — full user manual
+- [CHANGELOG.md](CHANGELOG.md) — versions & release notes
+- [LICENSE](LICENSE) — MIT license
+- [data/gdl-command-versions.json](data/gdl-command-versions.json) — editable knowledge base
+  for command version checking (please extend as a GDL expert)
 
-## Projektstruktur
+## Project Structure
 
 ```
-main.js            Electron-Hauptprozess + IPC
-preload.js         contextBridge-API für den Renderer
-renderer.js        UI-Logik / Ablauf
-index.html         UI-Struktur
-styles.css         Dark-Theme (gdlschmiede.de)
+main.js            Electron main process + IPC
+preload.js         contextBridge API for the renderer
+renderer.js        UI logic / workflow
+index.html         UI structure
+styles.css         Dark theme (gdlschmiede.de)
 lib/
-  converters.js    Converter-Scan + GSM-Versionserkennung
-  downgrade.js     Datei-Discovery + Downgrade-Engine + Batch
-  run-command.js   spawn-basierter Command-Runner
-test/              Unit-Tests (19)
-docs/superpowers/  Spec und Implementierungsplan
+  converters.js    Converter scan + GSM version detection
+  downgrade.js     File discovery + downgrade engine + batch
+  run-command.js   spawn-based command runner
+test/              Unit tests (37)
+docs/superpowers/  Spec and implementation plan
 ```
