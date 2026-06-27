@@ -23,10 +23,23 @@ test('extractCommands collects tokens from all script sections (uppercased)', ()
   assert.ok(cmds.has('PROJECT2'));
 });
 
-test('extractCommands ignores comments and string literals', () => {
+test('extractCommands ignores comments but includes string contents', () => {
   const cmds = extractCommands(SAMPLE_XML);
-  assert.ok(!cmds.has('COMMENTONLY'));
-  assert.ok(!cmds.has('STRINGONLY'));
+  assert.ok(!cmds.has('COMMENTONLY'));  // Kommentar bleibt ausgeschlossen
+  assert.ok(cmds.has('STRINGONLY'));    // String-Inhalt wird einbezogen
+});
+
+test('extractCommands finds a command used as a string argument (APPLICATION_QUERY)', () => {
+  const cmds = extractCommands('<Script_3D><![CDATA[ n = APPLICATION_QUERY ("MEPSYSTEM", "GetMEPSystems(domain)", d) ]]></Script_3D>');
+  assert.ok(cmds.has('MEPSYSTEM'));
+});
+
+test('extractCommands does not treat ! inside a string as a comment', () => {
+  // STAYTOKEN steht hinter einem ! INNERHALB des Strings und muss erhalten bleiben
+  const cmds = extractCommands('<Script_3D><![CDATA[ t = "hello! STAYTOKEN"\nGONETOKEN = 1 ! GONETOKEN2 ]]></Script_3D>');
+  assert.ok(cmds.has('STAYTOKEN'));   // im String, trotz !
+  assert.ok(cmds.has('GONETOKEN'));   // vor dem echten Kommentar
+  assert.ok(!cmds.has('GONETOKEN2')); // im echten Kommentar
 });
 
 test('extractCommands ignores text outside script sections', () => {
