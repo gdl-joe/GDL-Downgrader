@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('node:fs');
 const os = require('node:os');
 const { scanConverters, detectGsmVersion } = require('./lib/converters');
-const { findGsmFiles, runBatch } = require('./lib/downgrade');
+const { findGsmFiles, runBatch, buildDestPath } = require('./lib/downgrade');
 const { runCommand } = require('./lib/run-command');
 
 const TEMP_ROOT = path.join(os.homedir(), 'gdl_downgrade_temp');
@@ -76,6 +76,25 @@ ipcMain.handle('analyze-source', (event, sourcePath) => {
     rel: f.rel,
     sourceVersion: detectGsmVersion(f.abs)
   }));
+});
+
+// Prüft, ob Ziel-Dateien überschrieben würden, und holt ggf. eine Bestätigung ein.
+// Gibt true zurück, wenn fortgefahren werden darf (keine Konflikte oder bestätigt).
+// texts: { title, message ('{n}' wird ersetzt), overwrite, cancel }
+ipcMain.handle('confirm-overwrite', async (event, params) => {
+  const { files, destDir, texts } = params;
+  const existing = files.filter(f => fs.existsSync(buildDestPath(destDir, f.rel)));
+  if (existing.length === 0) return true;
+  const result = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: [texts.overwrite, texts.cancel],
+    defaultId: 1,
+    cancelId: 1,
+    title: texts.title,
+    message: texts.message.replace('{n}', existing.length),
+    detail: existing.map(f => f.rel).join('\n')
+  });
+  return result.response === 0;
 });
 
 // Startet den Batch; streamt Fortschritt über 'batch-progress' und Log über 'batch-log'.

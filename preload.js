@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('api', {
   selectSource: (mode) => ipcRenderer.invoke('select-source', mode),
   selectDest: () => ipcRenderer.invoke('select-dest'),
   analyzeSource: (p) => ipcRenderer.invoke('analyze-source', p),
+  confirmOverwrite: (params) => ipcRenderer.invoke('confirm-overwrite', params),
   runDowngrade: (params) => ipcRenderer.invoke('run-downgrade', params),
   // Vorherige Listener entfernen, damit ein Reload keine Listener akkumuliert
   // (sonst feuern Log/Progress mehrfach).

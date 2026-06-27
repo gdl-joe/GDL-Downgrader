@@ -154,10 +154,23 @@ $('btn-apply-all').addEventListener('click', () => {
 });
 
 $('btn-start').addEventListener('click', async () => {
+  const targetConverterPath = $('target-version').value;
+  // Vor dem Start: Überschreiben vorhandener Ziel-Dateien bestätigen lassen.
+  const proceed = await window.api.confirmOverwrite({
+    files: state.files,
+    destDir: state.destDir,
+    texts: {
+      title: tr('overwrite_title'),
+      message: tr('overwrite_message'),
+      overwrite: tr('overwrite_btn'),
+      cancel: tr('cancel_btn')
+    }
+  });
+  if (!proceed) return;
+
   $('btn-start').disabled = true;
   $('log').textContent = '';
   $('progress-bar').style.width = '0';
-  const targetConverterPath = $('target-version').value;
   try {
     const results = await window.api.runDowngrade({
       files: state.files,

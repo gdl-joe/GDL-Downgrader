@@ -35,7 +35,11 @@ const I18N = {
     cmd_warn_head: '⚠ {n} Objekt(e) nutzen evtl. zu neue GDL-Befehle – bitte prüfen:',
     since: 'ab AC{v}',
     error_label: 'Fehler',
-    error_log: '[Fehler] {msg}'
+    error_log: '[Fehler] {msg}',
+    overwrite_title: 'Dateien überschreiben?',
+    overwrite_message: 'Im Zielverzeichnis werden {n} vorhandene Datei(en) überschrieben. Fortfahren?',
+    overwrite_btn: 'Überschreiben',
+    cancel_btn: 'Abbrechen'
   },
   en: {
     backup_strong: 'Important – backup required:',
@@ -69,7 +73,11 @@ const I18N = {
     cmd_warn_head: '⚠ {n} object(s) may use GDL commands too new – please check:',
     since: 'since AC{v}',
     error_label: 'Error',
-    error_log: '[Error] {msg}'
+    error_log: '[Error] {msg}',
+    overwrite_title: 'Overwrite files?',
+    overwrite_message: '{n} existing file(s) in the target folder will be overwritten. Continue?',
+    overwrite_btn: 'Overwrite',
+    cancel_btn: 'Cancel'
   }
 };
 
