@@ -6,10 +6,38 @@ const state = {
   files: [],          // [{abs, rel, sourceVersion}]
   converters: [],     // [{version, path, name}]
   passwords: {},      // rel -> pw
-  lockedRels: []      // rel der passwortgeschützten Objekte
+  lockedRels: [],     // rel der passwortgeschützten Objekte
+  lang: localStorage.getItem('lang') || 'de',
+  lastResults: null   // für Re-Render der Zusammenfassung bei Sprachwechsel
 };
 
 const $ = (id) => document.getElementById(id);
+
+// Übersetzt mit der aktuellen Sprache.
+const tr = (key, params) => t(state.lang, key, params);
+
+// Wendet die gewählte Sprache auf alle statischen und dynamischen Texte an.
+function applyLanguage(lang) {
+  state.lang = lang;
+  localStorage.setItem('lang', lang);
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = tr(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = tr(el.getAttribute('data-i18n-placeholder'));
+  });
+  $('lang-de').classList.toggle('active', lang === 'de');
+  $('lang-en').classList.toggle('active', lang === 'en');
+  // Handbuch-Link je Sprache
+  $('manual-link').href = lang === 'en'
+    ? 'https://github.com/gdl-joe/GDL-Downgrader/blob/main/MANUAL.md'
+    : 'https://github.com/gdl-joe/GDL-Downgrader/blob/main/HANDBUCH.md';
+  // Dynamische Bereiche neu zeichnen
+  if (state.files.length) renderAnalysis();
+  renderPasswordList();
+  if (state.lastResults) renderSummary(state.lastResults);
+}
 
 function log(text) {
   const el = $('log');
@@ -39,11 +67,14 @@ async function init() {
 }
 
 function statusCell(f) {
-  if (f.sourceVersion == null) return '<span class="status-warn">Version unbekannt</span>';
-  const hasConv = state.converters.some(c => c.version === f.sourceVersion);
-  if (!hasConv) return `<span class="status-warn">⚠ Converter AC${f.sourceVersion} fehlt</span>`;
-  if (state.lockedRels.includes(f.rel)) return '<span class="status-locked">🔒 geschützt</span>';
-  return '<span class="status-ok">✓ bereit</span>';
+  if (state.lockedRels.includes(f.rel)) return `<span class="status-locked">${tr('status_locked')}</span>`;
+  // Nur ein Problem, wenn das Objekt zu NEU ist: kein installierter Converter kann es
+  // lesen (Quellversion höher als der höchste Converter). Ältere Objekte sind kein Problem.
+  const maxV = state.converters.reduce((m, c) => (c.version > m ? c.version : m), 0);
+  if (f.sourceVersion != null && f.sourceVersion > maxV) {
+    return `<span class="status-warn">${tr('status_toonew', { v: f.sourceVersion })}</span>`;
+  }
+  return `<span class="status-ok">${tr('status_ready')}</span>`;
 }
 
 function renderAnalysis() {
@@ -81,7 +112,7 @@ function renderPasswordList() {
     const input = document.createElement('input');
     input.type = 'password';
     input.dataset.rel = rel;
-    input.placeholder = 'Passwort…';
+    input.placeholder = tr('pw_placeholder');
     input.addEventListener('input', (e) => {
       state.passwords[rel] = e.target.value;
     });
@@ -136,31 +167,36 @@ $('btn-start').addEventListener('click', async () => {
     });
     handleResults(results);
   } catch (err) {
-    log(`\n[Fehler] ${err.message}\n`);
+    log('\n' + tr('error_log', { msg: err.message }) + '\n');
   } finally {
     $('btn-start').disabled = false;
   }
 });
 
 function handleResults(results) {
+  state.lastResults = results;
   // Passwortgeschützte Objekte einsammeln
   state.lockedRels = results.filter(r => r.status === 'password-required').map(r => r.rel);
   renderAnalysis();
   renderPasswordList();
+  renderSummary(results);
+  $('btn-start').disabled = false;
+}
 
+function renderSummary(results) {
   const summary = $('summary');
   summary.innerHTML = '';
   const ok = results.filter(r => r.status === 'success').length;
-  const locked = state.lockedRels.length;
+  const locked = results.filter(r => r.status === 'password-required').length;
   const failed = results.filter(r => r.status === 'error').length;
   const flagged = results.filter(r => r.warnings && r.warnings.length > 0);
-  summary.innerHTML = `<div class="summary-line status-ok">✓ ${ok} erfolgreich</div>
-    <div class="summary-line status-locked">🔒 ${locked} passwortgeschützt (Passwort eingeben und erneut starten)</div>
-    <div class="summary-line status-warn">⚠ ${failed} fehlgeschlagen</div>`;
+  summary.innerHTML = `<div class="summary-line status-ok">${tr('summary_ok', { n: ok })}</div>
+    <div class="summary-line status-locked">${tr('summary_locked', { n: locked })}</div>
+    <div class="summary-line status-warn">${tr('summary_failed', { n: failed })}</div>`;
   results.filter(r => r.status === 'error').forEach(r => {
     const d = document.createElement('div');
     d.className = 'summary-line status-warn';
-    d.textContent = `${r.rel}: ${r.reason || 'Fehler'}`;
+    d.textContent = `${r.rel}: ${r.reason || tr('error_label')}`;
     summary.appendChild(d);
   });
 
@@ -168,19 +204,21 @@ function handleResults(results) {
   if (flagged.length > 0) {
     const head = document.createElement('div');
     head.className = 'summary-line status-locked';
-    head.textContent = `⚠ ${flagged.length} Objekt(e) nutzen evtl. zu neue GDL-Befehle – bitte prüfen:`;
+    head.textContent = tr('cmd_warn_head', { n: flagged.length });
     summary.appendChild(head);
     flagged.forEach(r => {
       const d = document.createElement('div');
       d.className = 'summary-line cmd-warn';
-      const list = r.warnings.map(w => `${w.command} (ab AC${w.since})`).join(', ');
+      const list = r.warnings.map(w => `${w.command} (${tr('since', { v: w.since })})`).join(', ');
       d.textContent = `• ${r.rel}: ${list}`;
       summary.appendChild(d);
     });
   }
-
   $('summary-card').hidden = false;
-  $('btn-start').disabled = false;
 }
 
+$('lang-de').addEventListener('click', () => applyLanguage('de'));
+$('lang-en').addEventListener('click', () => applyLanguage('en'));
+
+applyLanguage(state.lang);
 init();

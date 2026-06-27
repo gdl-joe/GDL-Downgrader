@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -36,6 +36,14 @@ function createWindow() {
     }
   });
   mainWindow.loadFile('index.html');
+
+  // Externe Links (Handbuch, GitHub) im Standard-Browser öffnen, nicht im App-Fenster.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
 }
 
 ipcMain.handle('scan-converters', () => scanConverters());

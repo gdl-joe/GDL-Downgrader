@@ -85,3 +85,30 @@ test('findConverter returns the converter for a given version', () => {
 test('scanConverters returns empty array when base dir missing', () => {
   assert.deepStrictEqual(scanConverters('darwin', ['/nonexistent/xyz']), []);
 });
+
+const { maxConverterVersion, findDecompileConverter } = require('../lib/converters');
+
+const DC_LIST = [
+  { version: 25, path: '/c/25', name: 'AC25' },
+  { version: 27, path: '/c/27', name: 'AC27' },
+  { version: 29, path: '/c/29', name: 'AC29' }
+];
+
+test('maxConverterVersion returns the highest installed version', () => {
+  assert.strictEqual(maxConverterVersion(DC_LIST), 29);
+  assert.strictEqual(maxConverterVersion([]), null);
+});
+
+test('findDecompileConverter picks the lowest converter >= source version', () => {
+  assert.strictEqual(findDecompileConverter(DC_LIST, 21).version, 25); // AC21 object read by AC25
+  assert.strictEqual(findDecompileConverter(DC_LIST, 27).version, 27); // exact
+  assert.strictEqual(findDecompileConverter(DC_LIST, 29).version, 29);
+});
+
+test('findDecompileConverter returns null when object is newer than all converters', () => {
+  assert.strictEqual(findDecompileConverter(DC_LIST, 30), null);
+});
+
+test('findDecompileConverter uses the highest converter for unknown source version', () => {
+  assert.strictEqual(findDecompileConverter(DC_LIST, null).version, 29);
+});

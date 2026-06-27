@@ -56,7 +56,8 @@ test('downgradeFile decompiles with source converter and recompiles with target'
   ]);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
   const result = await downgradeFile({
-    sourceConverter: AC29,
+    decompileConverter: AC29,
+    sourceVersion: 29,
     targetConverter: AC24,
     sourcePath: '/src/a.gsm',
     destPath: path.join(tmp, 'a.gsm'),
@@ -80,23 +81,23 @@ test('downgradeFile reports password-required on decrypt error', async () => {
   ]);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
   const result = await downgradeFile({
-    sourceConverter: AC29, targetConverter: AC24,
+    decompileConverter: AC29, sourceVersion: 29, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run
   });
   assert.strictEqual(result.status, 'password-required');
 });
 
-test('downgradeFile reports error when source converter missing', async () => {
+test('downgradeFile reports error when object is too new (no decompile converter)', async () => {
   const { run } = makeRunner([]);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
   const result = await downgradeFile({
-    sourceConverter: null, targetConverter: AC24,
+    decompileConverter: null, sourceVersion: 30, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run
   });
   assert.strictEqual(result.status, 'error');
-  assert.match(result.reason, /source converter/i);
+  assert.match(result.reason, /too new/i);
 });
 
 test('downgradeFile passes password to decompile when given', async () => {
@@ -105,7 +106,7 @@ test('downgradeFile passes password to decompile when given', async () => {
   ]);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
   await downgradeFile({
-    sourceConverter: AC29, targetConverter: AC24,
+    decompileConverter: AC29, sourceVersion: 29, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run, password: 'secret'
   });
@@ -119,7 +120,7 @@ test('downgradeFile re-encrypts target with the same password (recompile)', asyn
   ]);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
   await downgradeFile({
-    sourceConverter: AC29, targetConverter: AC24,
+    decompileConverter: AC29, sourceVersion: 29, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run, password: 'secret'
   });
@@ -135,7 +136,7 @@ test('downgradeFile does not pass -password to recompile when none given', async
   ]);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
   await downgradeFile({
-    sourceConverter: AC29, targetConverter: AC24,
+    decompileConverter: AC29, sourceVersion: 29, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run
   });
@@ -153,7 +154,7 @@ test('downgradeFile reports warnings for commands newer than the target version'
     return { code: 0, output: 'ok' };
   };
   const result = await downgradeFile({
-    sourceConverter: AC29, targetConverter: AC24,
+    decompileConverter: AC29, sourceVersion: 29, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run,
     commandVersions: { MEPSYSTEM: 27, BLOCK: 1 }
@@ -172,7 +173,7 @@ test('downgradeFile has empty warnings when no commandVersions given', async () 
     return { code: 0, output: 'ok' };
   };
   const result = await downgradeFile({
-    sourceConverter: AC29, targetConverter: AC24,
+    decompileConverter: AC29, sourceVersion: 29, targetConverter: AC24,
     sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
     tempRoot: tmp, runCommand: run
   });
@@ -211,17 +212,31 @@ test('runBatch processes all files and isolates failures', async () => {
   assert.strictEqual(byRel['locked.gsm'], 'password-required');
 });
 
-test('runBatch reports error when a file source version has no converter', async () => {
+test('runBatch reports error when a file is too new for every converter', async () => {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'batchx-'));
   const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'batchxdst-'));
   const run = async () => ({ code: 0, output: 'ok' });
   const results = await runBatch({
-    files: [{ abs: '/src/old.gsm', rel: 'old.gsm', sourceVersion: 99 }],
+    files: [{ abs: '/src/new.gsm', rel: 'new.gsm', sourceVersion: 99 }],
     converters: CONVERTERS, targetConverter: TARGET24,
     destDir: dest, tempRoot: tmpRoot, runCommand: run, passwords: {}
   });
   assert.strictEqual(results[0].status, 'error');
-  assert.match(results[0].reason, /source converter/i);
+  assert.match(results[0].reason, /too new/i);
+});
+
+test('downgradeFile omits -compatibility when target version equals source', async () => {
+  const { run, calls } = makeRunner([
+    { code: 0, output: 'ok' }, { code: 0, output: 'ok' }
+  ]);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-'));
+  await downgradeFile({
+    decompileConverter: AC29, sourceVersion: 24, targetConverter: AC24,
+    sourcePath: '/src/a.gsm', destPath: path.join(tmp, 'a.gsm'),
+    tempRoot: tmp, runCommand: run
+  });
+  // Ziel == Quelle (24): kein -compatibility
+  assert.ok(!calls[0].args.includes('-compatibility'));
 });
 
 test('runBatch uses per-file password from passwords map', async () => {

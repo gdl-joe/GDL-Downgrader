@@ -9,32 +9,38 @@
   <header class="app-header">
     <span class="logo-mark"></span>
     <h1>GDL <span class="accent">Downgrader</span></h1>
+    <div class="lang-switch">
+      <button id="lang-de" class="lang-btn">DE</button>
+      <button id="lang-en" class="lang-btn">EN</button>
+    </div>
   </header>
 
   <main class="container">
     <!-- Backup-Pflicht -->
     <div class="notice notice-warn" role="alert">
-      <strong>Wichtig – Backup-Pflicht:</strong>
-      Lege vor dem Downgrade eine Sicherung deiner Original-Objekte an.
-      Arbeite niemals ohne Backup. Geschützte Objekte und ältere Versionen lassen
-      sich nicht verlustfrei wiederherstellen.
+      <strong data-i18n="backup_strong">Wichtig – Backup-Pflicht:</strong>
+      <span data-i18n="backup_text">Lege vor dem Downgrade eine Sicherung deiner Original-Objekte an. Arbeite niemals ohne Backup. Geschützte Objekte und ältere Versionen lassen sich nicht verlustfrei wiederherstellen.</span>
     </div>
 
     <!-- 1. Quelle -->
     <section class="card">
-      <div class="section-label">1 · Quelle</div>
+      <div class="section-label" data-i18n="step1">1 · Quelle</div>
       <div class="source-buttons">
-        <button id="btn-source-file" class="btn-secondary">Objekt wählen…</button>
-        <button id="btn-source-folder" class="btn-secondary">Ordner wählen…</button>
+        <button id="btn-source-file" class="btn-secondary" data-i18n="btn_source_file">Objekt wählen…</button>
+        <button id="btn-source-folder" class="btn-secondary" data-i18n="btn_source_folder">Ordner wählen…</button>
       </div>
       <div id="source-path" class="path-display"></div>
     </section>
 
     <!-- 2. Analyse-Tabelle -->
     <section class="card" id="analysis-card" hidden>
-      <div class="section-label">2 · Gefundene Objekte</div>
+      <div class="section-label" data-i18n="step2">2 · Gefundene Objekte</div>
       <table id="analysis-table">
-        <thead><tr><th>Objekt</th><th>Quellversion</th><th>Status</th></tr></thead>
+        <thead><tr>
+          <th data-i18n="th_object">Objekt</th>
+          <th data-i18n="th_version">Quellversion</th>
+          <th data-i18n="th_status">Status</th>
+        </tr></thead>
         <tbody></tbody>
       </table>
     </section>
@@ -42,29 +48,29 @@
     <!-- 3. Zielversion + 4. Zielverzeichnis -->
     <section class="card row">
       <div>
-        <div class="section-label">3 · Zielversion</div>
+        <div class="section-label" data-i18n="step3">3 · Zielversion</div>
         <select id="target-version"></select>
       </div>
       <div>
-        <div class="section-label">4 · Zielverzeichnis</div>
-        <button id="btn-dest" class="btn-secondary">Ordner wählen…</button>
+        <div class="section-label" data-i18n="step4">4 · Zielverzeichnis</div>
+        <button id="btn-dest" class="btn-secondary" data-i18n="btn_dest">Ordner wählen…</button>
         <div id="dest-path" class="path-display"></div>
       </div>
     </section>
 
     <!-- 5. Passwörter -->
     <section class="card" id="password-card" hidden>
-      <div class="section-label">5 · Passwortgeschützte Objekte 🔒</div>
+      <div class="section-label" data-i18n="step5">5 · Passwortgeschützte Objekte 🔒</div>
       <div class="pw-bulk">
-        <input type="password" id="pw-all" placeholder="Passwort für alle…">
-        <button id="btn-apply-all" class="btn-secondary">Auf alle anwenden</button>
+        <input type="password" id="pw-all" data-i18n-placeholder="pw_all_placeholder" placeholder="Passwort für alle…">
+        <button id="btn-apply-all" class="btn-secondary" data-i18n="btn_apply_all">Auf alle anwenden</button>
       </div>
       <div id="password-list"></div>
     </section>
 
     <!-- 6. Start + Log -->
     <section class="card">
-      <button id="btn-start" class="btn-primary" disabled>Downgrade starten</button>
+      <button id="btn-start" class="btn-primary" disabled data-i18n="btn_start">Downgrade starten</button>
       <div class="progress-wrap"><div id="progress-bar"></div></div>
       <div class="code-window">
         <div class="code-titlebar">
@@ -76,26 +82,27 @@
 
     <!-- 7. Zusammenfassung -->
     <section class="card" id="summary-card" hidden>
-      <div class="section-label">7 · Ergebnis</div>
+      <div class="section-label" data-i18n="step7">7 · Ergebnis</div>
       <div id="summary"></div>
     </section>
+
     <!-- Footer: Haftungsausschluss, Open Source, Version -->
     <footer class="app-footer">
       <p class="disclaimer">
-        <strong>Haftungsausschluss:</strong> Diese Software wird ohne jede Gewähr
-        bereitgestellt. Die Nutzung erfolgt auf eigene Verantwortung. Für Datenverlust,
-        fehlerhafte oder unvollständige Konvertierungen wird keine Haftung übernommen.
-        Archicad und GDL sind Marken der GRAPHISOFT SE; dieses Werkzeug nutzt den
-        mitgelieferten <code>LP_XMLConverter</code>, steht aber in keiner Verbindung zu GRAPHISOFT.
+        <strong data-i18n="disclaimer_strong">Haftungsausschluss:</strong>
+        <span data-i18n="disclaimer_text">Diese Software wird ohne jede Gewähr bereitgestellt. Die Nutzung erfolgt auf eigene Verantwortung. Für Datenverlust, fehlerhafte oder unvollständige Konvertierungen wird keine Haftung übernommen. Archicad und GDL sind Marken der GRAPHISOFT SE; dieses Werkzeug nutzt den mitgelieferten</span>
+        <code>LP_XMLConverter</code><span data-i18n="disclaimer_text2">, steht aber in keiner Verbindung zu GRAPHISOFT.</span>
       </p>
       <p class="footer-meta">
-        Open Source (MIT) ·
+        <a href="https://github.com/gdl-joe/GDL-Downgrader/blob/main/HANDBUCH.md" target="_blank" rel="noopener" id="manual-link" data-i18n="footer_manual">📖 Handbuch</a>
+        · Open Source (MIT) ·
         <a href="https://github.com/gdl-joe/GDL-Downgrader" target="_blank" rel="noopener">github.com/gdl-joe/GDL-Downgrader</a>
         · <span id="app-version">v–</span>
       </p>
     </footer>
   </main>
 
+  <script src="i18n.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

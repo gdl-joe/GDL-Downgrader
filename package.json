@@ -17,7 +17,7 @@
   "build": {
     "appId": "de.b-prisma.gdl-downgrader",
     "productName": "GDL Downgrader",
-    "files": ["main.js", "preload.js", "renderer.js", "index.html", "styles.css", "lib/**/*", "data/**/*", "package.json"],
+    "files": ["main.js", "preload.js", "renderer.js", "i18n.js", "index.html", "styles.css", "lib/**/*", "data/**/*", "package.json"],
     "mac": { "target": "dmg", "category": "public.app-category.developer-tools" },
     "win": { "target": "nsis" }
   }
