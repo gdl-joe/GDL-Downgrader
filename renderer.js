@@ -94,15 +94,18 @@ function updateStartButton() {
   $('btn-start').disabled = !(state.files.length && state.destDir);
 }
 
-$('btn-source').addEventListener('click', async () => {
-  const p = await window.api.selectSource();
+async function chooseSource(mode) {
+  const p = await window.api.selectSource(mode);
   if (!p) return;
   state.sourcePath = p;
   $('source-path').textContent = p;
   state.files = await window.api.analyzeSource(p);
   state.lockedRels = [];
   renderAnalysis();
-});
+}
+
+$('btn-source-file').addEventListener('click', () => chooseSource('file'));
+$('btn-source-folder').addEventListener('click', () => chooseSource('folder'));
 
 $('btn-dest').addEventListener('click', async () => {
   const p = await window.api.selectDest();
@@ -123,13 +126,19 @@ $('btn-start').addEventListener('click', async () => {
   $('log').textContent = '';
   $('progress-bar').style.width = '0';
   const targetConverterPath = $('target-version').value;
-  const results = await window.api.runDowngrade({
-    files: state.files,
-    targetConverterPath,
-    destDir: state.destDir,
-    passwords: state.passwords
-  });
-  handleResults(results);
+  try {
+    const results = await window.api.runDowngrade({
+      files: state.files,
+      targetConverterPath,
+      destDir: state.destDir,
+      passwords: state.passwords
+    });
+    handleResults(results);
+  } catch (err) {
+    log(`\n[Fehler] ${err.message}\n`);
+  } finally {
+    $('btn-start').disabled = false;
+  }
 });
 
 function handleResults(results) {

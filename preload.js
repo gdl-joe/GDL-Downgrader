@@ -6,6 +6,14 @@ contextBridge.exposeInMainWorld('api', {
   selectDest: () => ipcRenderer.invoke('select-dest'),
   analyzeSource: (p) => ipcRenderer.invoke('analyze-source', p),
   runDowngrade: (params) => ipcRenderer.invoke('run-downgrade', params),
-  onProgress: (cb) => ipcRenderer.on('batch-progress', (e, d) => cb(d)),
-  onLog: (cb) => ipcRenderer.on('batch-log', (e, d) => cb(d))
+  // Vorherige Listener entfernen, damit ein Reload keine Listener akkumuliert
+  // (sonst feuern Log/Progress mehrfach).
+  onProgress: (cb) => {
+    ipcRenderer.removeAllListeners('batch-progress');
+    ipcRenderer.on('batch-progress', (e, d) => cb(d));
+  },
+  onLog: (cb) => {
+    ipcRenderer.removeAllListeners('batch-log');
+    ipcRenderer.on('batch-log', (e, d) => cb(d));
+  }
 });

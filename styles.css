@@ -60,6 +60,7 @@ select, input[type="password"] {
   border: 1px solid var(--border); border-radius: 8px; padding: .55rem .7rem;
   font-family: inherit; font-size: .9rem;
 }
+.source-buttons { display: flex; gap: .6rem; flex-wrap: wrap; }
 table { width: 100%; border-collapse: collapse; font-size: .85rem; }
 th { text-align: left; color: var(--text-muted); font-weight: 600; padding: .4rem .5rem; border-bottom: 1px solid var(--border); }
 td { padding: .4rem .5rem; border-bottom: 1px solid var(--border); }

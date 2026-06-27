@@ -8,6 +8,9 @@ const { runCommand } = require('./lib/run-command');
 
 const TEMP_ROOT = path.join(os.homedir(), 'gdl_downgrade_temp');
 
+// Reste eines evtl. abgestürzten früheren Laufs beim Start entfernen.
+try { fs.rmSync(TEMP_ROOT, { recursive: true, force: true }); } catch (e) { /* ignore */ }
+
 let mainWindow;
 
 function createWindow() {
@@ -29,11 +32,14 @@ function createWindow() {
 
 ipcMain.handle('scan-converters', () => scanConverters());
 
-ipcMain.handle('select-source', async () => {
-  const r = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openFile', 'openDirectory'],
-    filters: [{ name: 'GDL Object', extensions: ['gsm'] }]
-  });
+// mode: 'file' -> einzelnes .gsm, 'folder' -> Verzeichnis.
+// Getrennte Modi, weil der kombinierte openFile+openDirectory-Dialog auf Windows
+// kein Verzeichnis auswählen lässt.
+ipcMain.handle('select-source', async (event, mode) => {
+  const options = mode === 'folder'
+    ? { properties: ['openDirectory'] }
+    : { properties: ['openFile'], filters: [{ name: 'GDL Object', extensions: ['gsm'] }] };
+  const r = await dialog.showOpenDialog(mainWindow, options);
   return r.filePaths[0] || null;
 });
 
@@ -60,19 +66,29 @@ ipcMain.handle('run-downgrade', async (event, params) => {
   const { files, targetConverterPath, destDir, passwords } = params;
   const converters = scanConverters();
   const targetConverter = converters.find(c => c.path === targetConverterPath) || null;
+  // Klarer Abbruch statt stiller Fehlschlag jeder Datei, falls der gewählte
+  // Ziel-Converter nicht (mehr) gefunden wird.
+  if (!targetConverter) {
+    return [{ rel: '—', status: 'error', reason: `Ziel-Converter nicht gefunden: ${targetConverterPath}` }];
+  }
   fs.mkdirSync(TEMP_ROOT, { recursive: true });
-  const results = await runBatch({
-    files,
-    converters,
-    targetConverter,
-    destDir,
-    tempRoot: TEMP_ROOT,
-    runCommand: (bin, args) => runCommand(bin, args, (chunk) =>
-      event.sender.send('batch-log', chunk)),
-    passwords,
-    onProgress: (p) => event.sender.send('batch-progress', p)
-  });
-  return results;
+  try {
+    const results = await runBatch({
+      files,
+      converters,
+      targetConverter,
+      destDir,
+      tempRoot: TEMP_ROOT,
+      runCommand: (bin, args) => runCommand(bin, args, (chunk) =>
+        event.sender.send('batch-log', chunk)),
+      passwords,
+      onProgress: (p) => event.sender.send('batch-progress', p)
+    });
+    return results;
+  } finally {
+    // TEMP_ROOT nach dem Lauf entfernen (per-file-Workdirs sind bereits weg).
+    try { fs.rmSync(TEMP_ROOT, { recursive: true, force: true }); } catch (e) { /* ignore */ }
+  }
 });
 
 app.whenReady().then(() => {
