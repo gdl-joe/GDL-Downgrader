@@ -31,8 +31,10 @@ Archicad installation.
 - **macOS:** Open `GDL Downgrader-<version>.dmg`, drag the app to the Applications folder.
   On first launch, confirm the Gatekeeper prompt via *Right-click → Open* if necessary
   (the app is not signed).
-- **Windows:** Run the installer (`.exe`, NSIS). Note: The Windows build is created on a
-  Windows machine (see section 9).
+- **Windows:** Unpack the **portable ZIP** (anywhere) and double-click
+  `GDL Downgrader starten.cmd`. No installation, no Node.js, no admin rights required. On
+  first launch you may see a SmartScreen notice ("unknown publisher") →
+  *More info* → *Run anyway*. To remove it, just delete the folder.
 
 Alternatively, run from source:
 ```bash
@@ -145,13 +147,14 @@ such as `PROJECT2{4}` is supported; matching is case-insensitive.
   npm run dist
   ```
   produces `dist/GDL Downgrader-<version>.dmg`.
-- **Windows (NSIS installer):** Must be built on a **Windows machine** (or via CI with a
-  Windows runner):
-  ```bash
+- **Windows (portable ZIP, recommended):** On a **Windows machine** in PowerShell:
+  ```powershell
   npm install
-  npm run dist
+  .\scripts\build-portable-win.ps1
   ```
-  Cross-building from macOS is not reliable and is not recommended.
+  produces `dist-portable\GDL-Downgrader-Win-x64-<version>.zip`. Deliberately **no** NSIS
+  installer — the renamed EXE triggers a Windows Defender false positive. The portable
+  package uses the unmodified official `electron.exe`. See [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
 
 ---
 

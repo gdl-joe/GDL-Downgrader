@@ -32,3 +32,6 @@ Erste Veröffentlichung.
 ### Hinweise
 - Haftungsausschluss und Backup-Pflicht dauerhaft im UI sichtbar.
 - Open Source unter MIT-Lizenz.
+- Auslieferung: macOS als DMG, Windows als **portables ZIP** (kein Installer –
+  vermeidet einen Windows-Defender-Fehlalarm; nutzt die unveränderte offizielle
+  Electron-Runtime). Build-Skript: `scripts/build-portable-win.ps1`.

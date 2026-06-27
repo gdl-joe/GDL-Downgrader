@@ -77,8 +77,9 @@ without Archicad (the command runner is injected in the tests).
 ### Build Notes
 
 - **macOS:** `npm run dist` produces a `.dmg` in `dist/`.
-- **Windows:** The NSIS installer must be built on a Windows machine; cross-building
-  from macOS is only partially possible.
+- **Windows:** portable ZIP via `.\scripts\build-portable-win.ps1` on a Windows machine
+  (no NSIS installer — the renamed EXE triggers a Windows Defender false positive; see
+  [WINDOWS_BUILD.md](WINDOWS_BUILD.md)).
 
 ---
 

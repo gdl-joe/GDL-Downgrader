@@ -77,8 +77,9 @@ testbar (der Command-Runner wird in den Tests injiziert).
 ### Build-Hinweis
 
 - **macOS:** `npm run dist` erzeugt eine `.dmg` in `dist/`.
-- **Windows:** Der NSIS-Installer muss auf einem Windows-Rechner gebaut werden; ein
-  Cross-Build von macOS aus ist nur eingeschränkt möglich.
+- **Windows:** portables ZIP per `.\scripts\build-portable-win.ps1` auf einem
+  Windows-Rechner (kein NSIS-Installer wegen Windows-Defender-Fehlalarm; siehe
+  [WINDOWS_BUILD.md](WINDOWS_BUILD.md)).
 
 ---
 

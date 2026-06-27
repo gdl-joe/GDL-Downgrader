@@ -1,105 +1,68 @@
-# Windows-Build – Anweisung für Claude Code (auf einem Windows-Rechner)
+# Windows-Build
 
-Diese Datei ist eine **Arbeitsanweisung für Claude Code**, ausgeführt auf einem
-**Windows-Rechner mit installiertem Archicad**. Ziel: den Windows-Installer (`.exe`, NSIS)
-erzeugen **und** den Windows-spezifischen Converter-Pfad verifizieren. Der macOS-Build (DMG)
-existiert bereits; die Konvertierungslogik ist plattformneutral und getestet.
-
-> Hinweis an Claude: Arbeite die Schritte der Reihe nach ab. Bei Schritt 3 (Converter-Pfad)
-> ist echte Verifikation am System nötig – nicht raten. Melde am Ende klar, ob der Pfad
-> gestimmt hat und ob der Build erfolgreich war.
+Status: Auf echter Windows-Hardware verifiziert (Converter-Erkennung, echter Downgrade,
+Paket startet). Die empfohlene Auslieferung für Windows ist ein **portables ZIP** – kein
+Installer.
 
 ---
 
-## Voraussetzungen auf dem Windows-Rechner
+## Warum portabel statt Installer (NSIS)
 
-- **Node.js 18+** (LTS) – <https://nodejs.org>
-- **Git**
-- **mindestens eine Archicad-Installation** mit `LP_XMLConverter.exe`
-- Internet (electron-builder lädt beim ersten Build Electron + NSIS-Tools herunter)
+Der von `electron-builder` erzeugte NSIS-Installer benennt die Electron-Binary in eine
+eigene, unsignierte `GDL Downgrader.exe` um. Eine solche einzigartige, unsignierte EXE hat
+keine Reputation in der Windows-Defender-Cloud und wurde beim Test **von Defender gelöscht**.
+
+Das portable Paket vermeidet das: Es verwendet die **unveränderte offizielle
+`electron.exe`** (die Defender-Reputation hat) und legt die App daneben in `resources\app`.
+Gestartet wird über eine kleine `.cmd`-Datei. Ergebnis: kein Defender-Eingriff, keine
+Installation, kein Node.js, kein Adminrecht, kein Code-Signing nötig.
 
 ---
 
-## Schritt 1 – Repository holen und Abhängigkeiten installieren
+## Portables Paket bauen
+
+Auf einem **Windows-Rechner** (PowerShell), im Projektordner:
 
 ```powershell
-git clone https://github.com/gdl-joe/GDL-Downgrader.git
+git clone https://github.com/gdl-joe/GDL-Downgrader.git   # oder: git pull
 cd GDL-Downgrader
 npm install
+.\scripts\build-portable-win.ps1
 ```
 
-## Schritt 2 – Tests ausführen (Plausibilitätscheck)
+Das Skript [`scripts/build-portable-win.ps1`](scripts/build-portable-win.ps1):
+1. ermittelt die Electron-Version aus `node_modules`,
+2. lädt einmalig die offizielle `electron-v<version>-win32-x64.zip` (gecacht in
+   `build-cache/`),
+3. entpackt die Runtime nach `dist-portable/GDL-Downgrader-Win-x64`,
+4. kopiert die App (`main.js`, `preload.js`, `renderer.js`, `i18n.js`, `index.html`,
+   `styles.css`, `package.json`, `lib/`, `data/`) nach `resources\app`,
+5. legt den Starter `GDL Downgrader starten.cmd` und eine `LIESMICH.txt` an,
+6. packt alles zu `dist-portable\GDL-Downgrader-Win-x64-<version>.zip`.
 
-```powershell
-npm test
-```
-Erwartet: **39 Tests, alle grün**. Wenn nicht, stoppen und Ausgabe melden.
+Funktioniert auf ARM- und x64-Windows (die x64-Runtime wird geladen, nicht vom Build-Host
+kopiert). `dist-portable/` und `build-cache/` sind gitignored.
 
-## Schritt 3 – Windows-Converter-Pfad VERIFIZIEREN (wichtigster Punkt)
+---
 
-Die App scannt Converter über `lib/converters.js`. Die Windows-Logik erwartet die Datei
-**`LP_XMLConverter.exe` direkt** in einem Versionsordner unter:
+## Nutzung (für Endanwender)
 
-```
-C:\Program Files\GRAPHISOFT\<Versionsordner>\LP_XMLConverter.exe
-```
-(Basisverzeichnisse: `C:\Program Files\GRAPHISOFT` und `C:\Program Files\Graphisoft`.)
+1. ZIP herunterladen und **entpacken** (Ort egal – Desktop, Downloads, …).
+2. Doppelklick auf **`GDL Downgrader starten.cmd`**.
+3. Beim ersten Start evtl. SmartScreen-Hinweis „unbekannter Herausgeber" →
+   *Weitere Informationen* → *Trotzdem ausführen*. Es wird nichts installiert und nichts
+   gelöscht.
+4. Zum Entfernen einfach den Ordner löschen.
 
-**Diese Annahme ist zu prüfen.** Vorgehen:
+Voraussetzung am Rechner: mindestens eine Archicad-Installation mit `LP_XMLConverter.exe`
+(wird automatisch unter `C:\Program Files\Graphisoft\…` gefunden).
 
-1. Finde heraus, wo `LP_XMLConverter.exe` tatsächlich liegt:
-   ```powershell
-   Get-ChildItem -Path "C:\Program Files" -Recurse -Filter "LP_XMLConverter.exe" -ErrorAction SilentlyContinue | Select-Object FullName
-   ```
-2. Prüfe, ob der App-Scan die Converter findet:
-   ```powershell
-   node -e "console.log(require('./lib/converters').scanConverters())"
-   ```
-   Erwartet: ein Array mit je `{ name, version, path }` pro installierter Archicad-Version.
+---
 
-3. **Wenn der Scan leer ist oder Converter fehlen**, weicht die reale Verzeichnisstruktur von
-   der Annahme ab (z. B. `.exe` in einem Unterordner, anderer Installationspfad, oder
-   Versionsnummer nicht im Ordnernamen). Passe dann die Windows-Zweige in
-   `lib/converters.js` an:
-   - `defaultBaseDirs('win32')` – die Basisverzeichnisse,
-   - im `scanConverters`-`win32`-Zweig – wie/wo nach `LP_XMLConverter.exe` gesucht wird
-     (ggf. rekursiv in Unterordner absteigen, analog zur macOS-`.app`-Suche).
-   Halte dich an den bestehenden Stil; ergänze bei Bedarf Tests in
-   `test/converters.test.js` (Fake-Verzeichnisbaum mit `platform = 'win32'`).
-   Nach der Anpassung erneut `npm test` und den Scan aus 3.2 ausführen.
+## Hinweis zur Converter-Erkennung (verifiziert)
 
-## Schritt 4 – App testen
-
-```powershell
-npm start
-```
-- Fenster öffnet sich, Sprachumschalter DE/EN oben rechts.
-- „Objekt wählen…" / „Ordner wählen…" → eine echte `.gsm` bzw. ein Ordner.
-- Die Tabelle zeigt die erkannte Quellversion und Status „✓ bereit".
-- Zielversion wählen, Zielordner wählen, „Downgrade starten".
-- Prüfen: erzeugte `.gsm` ist in der Zielversion ladbar; bei vorhandenen Zieldateien
-  erscheint die Überschreiben-Abfrage; passwortgeschützte Objekte bleiben geschützt.
-
-## Schritt 5 – Windows-Installer bauen
-
-```powershell
-npm run dist
-```
-Erwartet: ein NSIS-Installer unter `dist\GDL Downgrader Setup 1.0.0.exe` (Name/Version laut
-`package.json`). Der erste Build lädt Electron + NSIS herunter (dauert).
-
-> Code-Signing: Der Build ist **nicht signiert**. Windows SmartScreen zeigt beim ersten
-> Start eine Warnung („Weitere Informationen" → „Trotzdem ausführen"). Für eine signierte
-> Auslieferung wäre ein Windows-Code-Signing-Zertifikat nötig (separat).
-
-## Schritt 6 – Ergebnis melden
-
-Bitte zurückmelden:
-- War der Converter-Pfad aus Schritt 3 korrekt, oder musste `lib/converters.js` angepasst
-  werden? Falls ja: was genau war der reale Pfad / die reale Struktur?
-- Ergebnis von `npm test` (Anzahl Tests).
-- Hat ein echter Downgrade funktioniert (welche Quell-/Zielversion)?
-- Wurde `dist\…Setup 1.0.0.exe` erfolgreich erzeugt?
-
-Falls `lib/converters.js` angepasst wurde, die Änderung committen und pushen (oder als
-Patch/Diff an Jochen zurückgeben), damit der macOS- und der Windows-Pfad zusammenbleiben.
+Auf echter Windows-Hardware bestätigt: `LP_XMLConverter.exe` liegt direkt im Versionsordner
+(`C:\Program Files\Graphisoft\Archicad NN\LP_XMLConverter.exe`); die Version wird aus dem
+Ordnernamen gelesen. Ein dabei gefundener Bug (doppelte Auflistung durch die
+case-insensitiven Basisverzeichnisse `GRAPHISOFT`/`Graphisoft`) ist behoben – der Scan
+dedupliziert Converter über den kanonischen Pfad.

@@ -1,5 +1,7 @@
 node_modules/
 dist/
+dist-portable/
+build-cache/
 .DS_Store
 ~/gdl_downgrade_temp/
 GDLnucleus/

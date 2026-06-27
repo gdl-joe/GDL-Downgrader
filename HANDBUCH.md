@@ -31,8 +31,10 @@ Archicad-Installation mitgeliefert wird.
 - **macOS:** `GDL Downgrader-<version>.dmg` öffnen, App in den Programme-Ordner ziehen.
   Beim ersten Start ggf. über *Rechtsklick → Öffnen* die Gatekeeper-Abfrage bestätigen
   (die App ist nicht signiert).
-- **Windows:** Den Installer (`.exe`, NSIS) ausführen. Hinweis: Der Windows-Build wird
-  auf einem Windows-Rechner erzeugt (siehe Abschnitt 9).
+- **Windows:** Das **portable ZIP** entpacken (Ort egal) und
+  `GDL Downgrader starten.cmd` doppelklicken. Keine Installation, kein Node.js, kein
+  Adminrecht nötig. Beim ersten Start evtl. SmartScreen-Hinweis „unbekannter Herausgeber"
+  → *Weitere Informationen* → *Trotzdem ausführen*. Zum Entfernen den Ordner löschen.
 
 Alternativ aus dem Quellcode:
 ```bash
@@ -147,13 +149,15 @@ wie `PROJECT2{4}` wird unterstützt; der Abgleich ist case-insensitiv.
   npm run dist
   ```
   erzeugt `dist/GDL Downgrader-<version>.dmg`.
-- **Windows (NSIS-Installer):** Muss auf einem **Windows-Rechner** (oder via CI mit
-  Windows-Runner) gebaut werden:
-  ```bash
+- **Windows (portables ZIP, empfohlen):** Auf einem **Windows-Rechner** in PowerShell:
+  ```powershell
   npm install
-  npm run dist
+  .\scripts\build-portable-win.ps1
   ```
-  Der Cross-Build von macOS aus ist nicht zuverlässig und wird nicht empfohlen.
+  erzeugt `dist-portable\GDL-Downgrader-Win-x64-<version>.zip`. Bewusst **kein**
+  NSIS-Installer – die dabei umbenannte EXE löst einen Windows-Defender-Fehlalarm aus.
+  Das portable Paket nutzt die unveränderte offizielle `electron.exe`. Details in
+  [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
 
 ---
 
