@@ -2,35 +2,42 @@
 Zuletzt aktualisiert: 2026-06-27
 
 ## Was wurde gemacht
-- Vollständige Electron-App „GDL Downgrader" (macOS + Windows) von Grund auf gebaut.
-- Ablauf: Brainstorming → Spec (`docs/superpowers/specs/`) → Plan (`docs/superpowers/plans/`)
-  → Subagent-getriebene Umsetzung, je per TDD und Einzel-Commit (12 Commits auf `master`).
-- Engine (`lib/`): Converter-Scan (Mac+Win), GSM-Versionserkennung aus Header, rekursive
-  .gsm-Discovery mit Struktur-Erhalt, Zwei-Converter-Downgrade
-  (`libpart2xml -compatibility` → `xml2libpart`), Batch mit Fehler-Isolation, Passwort-
-  Erkennung (`Could not decrypt library part`). 19 Unit-Tests, alle grün.
-- Electron-Verdrahtung (`main.js` IPC, `preload.js` contextBridge) + UI im gdlschmiede-
-  Dark-Style (`index.html`, `styles.css`, `renderer.js`).
-- Finaler unabhängiger Code-Review → 5 Defekte gefunden und behoben (`37a502c`):
-  IPC-Listener-Leak, hängender Start-Button (try/finally), Guard gegen nicht gefundenen
-  Ziel-Converter, getrennte Datei-/Ordner-Buttons (Windows-Dialog-Limit), Temp-Cleanup.
-- README mit Bedienung, Voraussetzungen und Build-Hinweisen (`4efb19a`).
+- Vollständige Electron-App „GDL Downgrader" (macOS + Windows) gebaut, getestet,
+  veröffentlicht und um eine Wunschliste erweitert.
+- Engine (`lib/`): Converter-Scan (Mac+Win), GSM-Versionserkennung, rekursiver
+  Downgrade-Batch (`libpart2xml -compatibility` → `xml2libpart`), Passwort-Erhalt,
+  Befehls-Versions-Prüfung. **32 Unit-Tests, alle grün.**
+- UI im gdlschmiede-Dark-Style, 7-Schritt-Flow.
+- Echte Tests durch Jochen bestanden: ungeschützter Downgrade, Ordnerauswahl, Passwort.
+- Auf GitHub veröffentlicht: https://github.com/gdl-joe/GDL-Downgrader (public, MIT).
+
+### Umgesetzte Wünsche (Runde 2)
+1. Prüfung der Skripte auf zu neue GDL-Befehle (Warnung im Ergebnis). Wissensbasis
+   `data/gdl-command-versions.json` aus der offiziellen GDL New Features Guide vorbefüllt
+   (225 Einträge, AC16–29) — **muss von Jochen als Experte geprüft/erweitert werden**.
+2. Haftungsausschluss (Footer) — dauerhaft im UI.
+3. Backup-Pflicht-Hinweis (prominente Box) — dauerhaft im UI.
+4. Open-Source-Hinweis + `LICENSE` (MIT).
+5. Versionsnummer im UI (Footer, via `app.getVersion()`) + `CHANGELOG.md`.
+6. Handbuch `HANDBUCH.md`.
+7. macOS-DMG gebaut: `dist/GDL Downgrader-1.0.0-arm64.dmg` (Apple Silicon, unsigniert).
 
 ## Aktueller Stand
-- Code vollständig, syntaxgeprüft, **19/19 Tests grün**, 12 Commits.
-- Converter-Scan auf echtem Rechner verifiziert: findet AC25–AC29, inkl. Mehrfach-
-  Installationen (AC27 + AC27AUT, AC29 + „Archicad 29"). Diese werden bewusst einzeln
-  angeboten — Nutzer wählt konkrete Zielinstallation.
-- App startbereit (`npm start`); GUI-Lauf und echte Konvertierung noch ausstehend.
+- Code vollständig, 32/32 Tests grün, alles committet.
+- DMG erzeugt (arm64). App läuft (`npm start`).
+- Hinweis Ausführungsumgebung: In dieser Sandbox ist `ELECTRON_RUN_AS_NODE=1` gesetzt;
+  zum Starten daher `env -u ELECTRON_RUN_AS_NODE ./node_modules/.bin/electron .`. Auf
+  Jochens normalem System tritt das nicht auf (`npm start` reicht).
 
-## Nächste Schritte (Task 11 — manueller Test durch Jochen)
-1. `npm start` — App im echten Betrieb prüfen.
-2. Echter Downgrade eines **ungeschützten** Objekts (z.B. AC28 → AC25).
-3. Echter Downgrade des **passwortgeschützten** `Schematic3DModel.gsm` (erst ohne, dann mit Passwort).
-4. Verzeichnis-Batch mit Unterordnern (Struktur-Erhalt prüfen).
-5. `npm run dist` — DMG bauen (Windows-NSIS separat auf Windows-Rechner).
+## Nächste Schritte
+- Jochen: neue Features im echten Betrieb testen (v. a. Befehls-Warnung an einem Objekt
+  mit neuen Befehlen; Passwortschutz-Erhalt).
+- Jochen: `data/gdl-command-versions.json` als GDL-Experte prüfen/erweitern.
+- Optional: eigenes App-Icon (derzeit Standard-Electron-Icon).
+- Optional: Intel-(x64)-DMG zusätzlich; Windows-NSIS-Build auf Windows-Rechner.
 
 ## Offene Probleme / Blockaden
-- Windows-Converter-Pfad (`C:\Program Files\GRAPHISOFT\*\LP_XMLConverter.exe`) ist eine
-  begründete Annahme aus der GDLnucleus-Config — auf echtem Windows noch zu verifizieren.
-- Cross-Build des Windows-Installers von macOS aus nur eingeschränkt möglich.
+- Befehlsliste ist vorbefüllt, aber nicht expertengeprüft — mögliche Fehlwarnungen, bis
+  Jochen sie durchsieht (offensichtlicher Fehler `TUBE` wurde bereits entfernt).
+- Windows-Converter-Pfad auf echtem Windows noch zu verifizieren.
+- App und DMG sind nicht code-signiert (Gatekeeper-Hinweis beim ersten Start).

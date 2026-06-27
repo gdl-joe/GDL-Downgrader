@@ -80,6 +80,14 @@ testbar (der Command-Runner wird in den Tests injiziert).
 
 ---
 
+## Weitere Dokumente
+
+- [HANDBUCH.md](HANDBUCH.md) — ausführliches Benutzerhandbuch
+- [CHANGELOG.md](CHANGELOG.md) — Versionen & Release Notes
+- [LICENSE](LICENSE) — MIT-Lizenz
+- [data/gdl-command-versions.json](data/gdl-command-versions.json) — pflegbare Wissensbasis
+  für die Befehls-Versions-Prüfung (bitte als GDL-Experte erweitern)
+
 ## Projektstruktur
 
 ```
