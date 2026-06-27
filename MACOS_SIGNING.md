@@ -8,20 +8,24 @@ Die electron-builder-Konfiguration ist bereits vorbereitet (`build/entitlements.
 `build/entitlements.mac.inherit.plist`, `mac.notarize` in `package.json`). Es fehlen nur noch
 **dein Zertifikat** und **dein API-Key** plus drei Umgebungsvariablen.
 
+> **Kein Xcode nötig.** Die macOS *Command Line Tools* (`xcode-select --install`) enthalten
+> bereits `codesign` und `notarytool` – auf diesem Rechner verifiziert vorhanden. Das volle
+> Xcode (~15 GB) muss **nicht** installiert werden.
+
 ---
 
 ## Schritt 1 – Developer-ID-Zertifikat erstellen (einmalig)
 
-Dieses Zertifikat **signiert** die App. Es muss im macOS-Schlüsselbund liegen.
+Dieses Zertifikat **signiert** die App. Es muss im macOS-Schlüsselbund liegen. Ohne Xcode
+läuft das über das Developer-Portal:
 
-**Einfachster Weg (mit Xcode installiert):**
-1. Xcode → *Settings…* → *Accounts* → mit deiner Apple-ID anmelden.
-2. Account auswählen → *Manage Certificates…* → *+* → **Developer ID Application**.
-3. Fertig – das Zertifikat liegt jetzt im Schlüsselbund.
-
-**Ohne Xcode (über das Portal):**
-1. *Schlüsselbundverwaltung* → Menü *Zertifikatsassistent* → *Zertifikat einer Zertifizierungsstelle anfordern* → als Datei speichern (CSR).
-2. <https://developer.apple.com/account/resources/certificates> → *+* → **Developer ID Application** → CSR hochladen → Zertifikat laden → doppelklicken (in den Schlüsselbund).
+1. **CSR erzeugen:** *Schlüsselbundverwaltung* öffnen → Menü *Schlüsselbundverwaltung* →
+   *Zertifikatsassistent* → *Zertifikat einer Zertifizierungsstelle anfordern…* → deine
+   E-Mail eintragen, *Auf der Festplatte sichern* → ergibt eine `.certSigningRequest`-Datei.
+2. **Zertifikat anfordern:** <https://developer.apple.com/account/resources/certificates> →
+   **+** → **Developer ID Application** → die CSR hochladen → Zertifikat **herunterladen**.
+3. **Installieren:** die heruntergeladene `.cer`-Datei **doppelklicken** → landet im
+   Schlüsselbund (Anmeldung).
 
 Prüfen, dass es da ist:
 ```bash
