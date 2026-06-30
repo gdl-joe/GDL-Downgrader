@@ -28,9 +28,9 @@ Archicad installation.
 
 ## 2. Installation
 
-- **macOS:** Open `GDL Downgrader-<version>.dmg`, drag the app to the Applications folder.
-  On first launch, confirm the Gatekeeper prompt via *Right-click → Open* if necessary
-  (the app is not signed).
+- **macOS:** Open `GDL-Downgrader-<version>-universal.dmg`, drag the app to the Applications
+  folder. The app is **signed & notarized** by Apple and launches without a warning
+  (runs on Intel and Apple Silicon).
 - **Windows:** Unpack the **portable ZIP** (anywhere) and double-click
   `GDL Downgrader starten.cmd`. No installation, no Node.js, no admin rights required. On
   first launch you may see a SmartScreen notice ("unknown publisher") →

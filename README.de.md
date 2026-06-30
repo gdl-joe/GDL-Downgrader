@@ -13,8 +13,8 @@ und Passwort-Handling. Dunkles UI im Stil von gdlschmiede.de.
 
 Die aktuellen Pakete liegen auf der **[Releases-Seite](https://github.com/gdl-joe/GDL-Downgrader/releases/latest)**:
 
-- **macOS** (Apple Silicon): `GDL Downgrader-…-arm64.dmg` — unsigniert; beim ersten Start über
-  *Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen"* starten.
+- **macOS** (Intel & Apple Silicon): `GDL-Downgrader-…-universal.dmg` — von Apple signiert &
+  notarisiert, startet ohne Gatekeeper-Warnung.
 - **Windows** (x64): `GDL-Downgrader-…-win-x64-portable.zip` — portabel, keine Installation;
   entpacken und `GDL Downgrader starten.cmd` doppelklicken.
 
