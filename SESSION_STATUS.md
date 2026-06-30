@@ -1,54 +1,46 @@
 # Projektstand — GDL Downgrader
-Zuletzt aktualisiert: 2026-06-27
+Zuletzt aktualisiert: 2026-06-30
 
 ## Was wurde gemacht
-- Vollständige Electron-App „GDL Downgrader" (macOS + Windows) gebaut, getestet, von Jochen
-  verifiziert, auf GitHub veröffentlicht und in mehreren Runden erweitert.
-- Engine (`lib/`): Converter-Scan (Mac+Win), GSM-Versionserkennung, rekursiver Downgrade-
-  Batch, Passwort-Erhalt, Befehls-Versions-Prüfung. **39 Unit-Tests, alle grün.**
-- UI im gdlschmiede-Dark-Style, 7-Schritt-Flow, **zweisprachig DE/EN** (umschaltbar).
+- Vollständige Electron-App „GDL Downgrader" (macOS + Windows) von Grund auf gebaut,
+  getestet, veröffentlicht und ausgeliefert.
+- Engine (`lib/`): Converter-Scan (Mac+Win, mit Dedup), GSM-Versionserkennung, rekursiver
+  Downgrade-Batch (`libpart2xml -compatibility` → `xml2libpart`), Passwort-Erhalt,
+  Befehls-Versions-Prüfung. **40 Unit-Tests, alle grün.**
+- UI im gdlschmiede-Dark-Style, 7-Schritt-Flow, **zweisprachig DE/EN**.
+- Auf echter Hardware (Mac + Windows) end-to-end verifiziert.
 - Veröffentlicht: https://github.com/gdl-joe/GDL-Downgrader (public, MIT).
 
-### Funktionsumfang (final)
-- Downgrade einzeln oder rekursiv; Quellversion je Objekt automatisch erkannt.
-- Intelligente Converter-Wahl: Decompile mit dem niedrigsten Converter ≥ Quellversion;
-  exakter Quell-Converter nicht nötig. Fehler nur, wenn Objekt zu neu für höchsten Converter.
-- Zielversion frei wählbar; `-compatibility` nur beim echten Downgrade (Ziel < Quelle).
-- Passwortschutz wird erkannt und bleibt nach dem Downgrade erhalten.
-- Prüfung auf zu neue GDL-Befehle (inkl. Befehlen in String-Argumenten wie
-  `APPLICATION_QUERY("MEPSYSTEM", …)`); Warnung im Ergebnis-Bereich. Wissensbasis
-  `data/gdl-command-versions.json` von Jochen experten-reduziert (222 Einträge).
-- Bestätigungsdialog vor dem Überschreiben vorhandener Ziel-Dateien.
-- Erfolg/„bereit" grün; Haftungsausschluss + Backup-Pflicht im UI; Handbuch-Link.
+## Auslieferung (fertig, im Release v1.0.0)
+- **macOS:** `GDL-Downgrader-1.0.0-universal.dmg` (168 MB) — **signiert + notarisiert**
+  (Apple Developer ID, Hardened Runtime), **Universal** (Intel + Apple Silicon), startet
+  warnungsfrei. SHA-256: `fc83410f2e535176c2d88685048c71851573592ecf586119cdd78a4cb552c517`
+- **Windows:** `GDL-Downgrader-1.0.0-win-x64-portable.zip` (105 MB) — **portabel**,
+  Defender-sicher (offizielle electron.exe), mit Converter-Dedup-Fix.
+  SHA-256: `d15551a683d0e5c43194fc71a6c2adffcc663f34d3cd7e84f3feb3e538791f17`
+- Beide mit prominentem Download-Abschnitt in README (DE/EN), Link auf `/releases/latest`.
 
-### Distribution
-- **macOS:** `dist/GDL Downgrader-1.0.0-arm64.dmg` (91 MB, Apple Silicon, unsigniert) — fertig.
-- **Windows:** noch zu bauen — Anleitung in `WINDOWS_BUILD.md` (für Claude Code auf Windows;
-  inkl. Verifikation des Windows-Converter-Pfads + NSIS-Build).
-- Doku zweisprachig: README ↔ README.de, HANDBUCH ↔ MANUAL (mit Sprachumschalt-Links).
+## macOS-Signierung (eingerichtet, dokumentiert)
+- Apple Developer Program (Individual) aktiv; Developer-ID-Zertifikat + G2-Intermediate
+  installiert; App-Store-Connect-API-Key für Notarisierung.
+- electron-builder-Config: `mac.notarize`, Hardened Runtime, Entitlements
+  (`build/entitlements.mac*.plist`). Ablauf + Stolpersteine in `MACOS_SIGNING.md`.
+- Wichtiger Lerneffekt: codesign-Hängen lag NICHT am Schlüssel, sondern war die stille,
+  mehrminütige Notarisierungs-Wartezeit (bei 167 MB Universal bis ~Stunde). Signierung
+  zuverlässig über `.p12` + `CSC_LINK`/`CSC_KEY_PASSWORD`. DMG zusätzlich separat
+  notarisiert + gestapelt (`notarytool submit --wait`, `stapler staple`).
 
-## Aktueller Stand
-- Alles committet und gepusht (letzter Commit: `dae3ec6`).
-- 39/39 Tests grün. DMG gebaut.
-- Start in dieser Sandbox: `env -u ELECTRON_RUN_AS_NODE ./node_modules/.bin/electron .`
-  (auf Jochens normalem System reicht `npm start`).
+## Dokumentation
+- README ↔ README.de, HANDBUCH ↔ MANUAL (zweisprachig, mit Sprachumschalt-Links),
+  CHANGELOG, LICENSE (MIT), WINDOWS_BUILD.md, MACOS_SIGNING.md.
+- Produktseiten-Texte (EN: Description/Features/Use Case/Informations/Documents/Downloads
+  inkl. Prüfsummen) sowie ein DE-News-Beitrag für b-prisma.de wurden geliefert (im Chat).
 
-## Nächste Schritte (optional)
-- Windows-Installer auf einem Windows-Rechner bauen (siehe `WINDOWS_BUILD.md`), dabei den
-  Converter-Pfad real verifizieren.
-- Optional: GitHub Release mit DMG (und später EXE) als Download-Assets.
-- Optional: eigenes App-Icon (derzeit Standard-Electron-Icon).
-- Optional: Intel-(x64)-DMG zusätzlich.
-
-## Plattform-Verifikation (erledigt)
-- **macOS:** echter Downgrade getestet (Jochen). DMG gebaut + als GitHub Release v1.0.0.
-- **Windows:** auf echter Hardware verifiziert — Converter-Pfad (`C:\Program Files\
-  Graphisoft\Archicad NN\LP_XMLConverter.exe`), echter Downgrade-Test erfolgreich,
-  NSIS-Installer gebaut. Dabei Cross-Platform-Bug gefunden und gefixt (`3bb528e`):
-  doppelte Converter-Listung durch case-insensitive Basisverzeichnisse → Dedup über
-  kanonischen Pfad.
-
-## Offene Punkte
-- Windows-`Setup 1.0.0.exe` (aus aktuellem Repo-Stand) ans GitHub Release v1.0.0 hängen
-  — Datei muss dafür auf den Mac übertragen werden (`gh release upload v1.0.0 …`).
-- App/DMG/EXE nicht code-signiert (Gatekeeper-/SmartScreen-Hinweis beim ersten Start).
+## Offene / optionale Punkte
+- Eigenes App-Icon (derzeit Standard-Electron-Icon).
+- `data/gdl-command-versions.json` weiter pflegen (von Jochen bereits reduziert; bei neuen
+  AC-Versionen ergänzen).
+- Bei neuer Version: DMG (signiert) + Windows-ZIP neu bauen, Release `v1.x` anlegen,
+  Download-Links/Prüfsummen auf der Produktseite aktualisieren.
+- Hinweis Sandbox-Start (nur in der Claude-Umgebung relevant):
+  `env -u ELECTRON_RUN_AS_NODE ./node_modules/.bin/electron .` — auf Jochens System `npm start`.
