@@ -12,7 +12,7 @@ Archicad-Installation mitgeliefert wird.
 
 ## 1. Voraussetzungen
 
-- **macOS** oder **Windows**.
+- **macOS 13 (Ventura) oder neuer** oder **Windows**. Für macOS 10.15–12 gibt es Version 1.0.0.
 - Installierte Archicad-Converter:
   - mindestens **ein Converter, der so neu ist wie dein neuestes Objekt** (neuere
     Converter lesen ältere Objekte – ein AC21-Objekt braucht keinen AC21-Converter), und
@@ -55,7 +55,7 @@ npm start
    - 🔒 geschützt (nach einem ersten Versuch, siehe Abschnitt 5)
 3. **Zielversion** – frei wählbar; es werden alle installierten Converter angeboten. Ist die
    Zielversion gleich der Quellversion, wird ohne `-compatibility` nur neu kompiliert.
-4. **Zielverzeichnis** – die Ordnerstruktur der Quelle wird dort 1:1 nachgebaut.
+4. **Zielverzeichnis** – die Ordnerstruktur der Quelle wird dort 1:1 nachgebaut. Alle übrigen Dateien (Grafiken, Texte usw.) und auch leere Ordner werden unverändert mit übernommen.
 5. **Passwörter** – erscheint nur, wenn geschützte Objekte auftauchen (Abschnitt 5).
 6. **Downgrade starten** – Fortschrittsbalken und Live-Log. Pro Objekt zwei Schritte:
    Decompile mit dem Quell-Converter (`libpart2xml -compatibility <Ziel>`), dann

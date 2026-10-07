@@ -1,5 +1,33 @@
 # macOS – Signierung & Notarisierung
 
+## Kurzfassung – jeder neue Build (seit 2026-10-07)
+
+Alles ist eingerichtet. Im Terminal:
+
+```bash
+cd ~/Sites/localhost/GDL-Downgrader
+npm run dist:mac
+```
+
+Das baut die Universal-DMG, signiert sie, lässt App und DMG von Apple notarisieren und heftet
+den Prüfstempel an. Am Ende muss **„The staple and validate action worked!“** stehen.
+Die Notarisierung kann lange still laufen – nicht abbrechen.
+
+Woher die Zugangsdaten kommen – **nichts davon muss neu eingegeben werden**:
+- **Signieren:** Zertifikat „Developer ID Application: Joachim Ulrich Sühlo“ im Schlüsselbund
+  (Anmeldung). Prüfen: `security find-identity -v -p codesigning` → „1 valid identities found“.
+- **Notarisieren:** Schlüsselbund-Profil **`gdl-notary`**, einmalig angelegt mit
+  `xcrun notarytool store-credentials "gdl-notary"` (fragt Pfad zur `.p8`, Key ID, Issuer ID).
+  Die Issuer ID steht in App Store Connect unter **••• → Benutzer und Zugriff → Integrationen**.
+  Die `.p8`-Datei findet `find ~ -name "AuthKey_*.p8" 2>/dev/null`.
+
+Prüfen der Signatur nur im **eigenen** Terminal – in der Claude-Sandbox meldet `codesign`
+fälschlich „invalid signature“, weil dort der Zugriff auf die Zertifikatsprüfung fehlt.
+
+---
+
+## Ersteinrichtung (Archiv – nur nötig, falls Zertifikat oder Key neu angelegt werden)
+
 Diese Anleitung beschreibt, wie die macOS-DMG **signiert und notarisiert** gebaut wird, damit
 sie bei Nutzern **ohne Gatekeeper-Warnung** startet. Voraussetzung: aktive Mitgliedschaft im
 Apple Developer Program (erledigt).

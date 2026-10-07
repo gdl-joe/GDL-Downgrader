@@ -14,7 +14,8 @@ and password handling. Dark UI in the style of gdlschmiede.de.
 Get the latest packages from the **[Releases page](https://github.com/gdl-joe/GDL-Downgrader/releases/latest)**:
 
 - **macOS** (Intel & Apple Silicon): `GDL-Downgrader-…-universal.dmg` — signed & notarized by
-  Apple, runs without a Gatekeeper warning.
+  Apple, runs without a Gatekeeper warning. **Requires macOS 13 (Ventura) or later.**
+  On macOS 10.15–12 use [version 1.0.0](https://github.com/gdl-joe/GDL-Downgrader/releases/tag/v1.0.0).
 - **Windows** (x64): `GDL-Downgrader-…-win-x64-portable.zip` — portable, no installation;
   unpack and run `GDL Downgrader starten.cmd`.
 
@@ -62,7 +63,7 @@ Multiple installations of the same version (e.g. `AC27` and `AC27AUT`) are offer
 2. **Objects found** — table with detected source version and status
    (✓ ready / ⚠ too new – no converter / 🔒 protected).
 3. **Target version** — freely selectable from all installed converters.
-4. **Target directory** — the folder structure of the source is reproduced 1:1 there.
+4. **Target directory** — the folder structure of the source is reproduced 1:1 there. All other files (images, texts, etc.) and empty folders are copied over unchanged.
 5. **Passwords** — appears only when protected objects are encountered during conversion;
    enter a password per object or a single shared password for all, then restart.
 6. **Start downgrade** — progress and live log are displayed.

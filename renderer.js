@@ -158,6 +158,7 @@ $('btn-start').addEventListener('click', async () => {
   // Vor dem Start: Überschreiben vorhandener Ziel-Dateien bestätigen lassen.
   const proceed = await window.api.confirmOverwrite({
     files: state.files,
+    sourcePath: state.sourcePath,
     destDir: state.destDir,
     texts: {
       title: tr('overwrite_title'),
@@ -174,6 +175,7 @@ $('btn-start').addEventListener('click', async () => {
   try {
     const results = await window.api.runDowngrade({
       files: state.files,
+      sourcePath: state.sourcePath,
       targetConverterPath,
       destDir: state.destDir,
       passwords: state.passwords
@@ -202,8 +204,10 @@ function renderSummary(results) {
   const ok = results.filter(r => r.status === 'success').length;
   const locked = results.filter(r => r.status === 'password-required').length;
   const failed = results.filter(r => r.status === 'error').length;
+  const copied = results.filter(r => r.status === 'copied').length;
   const flagged = results.filter(r => r.warnings && r.warnings.length > 0);
   summary.innerHTML = `<div class="summary-line status-ok">${tr('summary_ok', { n: ok })}</div>
+    <div class="summary-line status-ok">${tr('summary_copied', { n: copied })}</div>
     <div class="summary-line status-locked">${tr('summary_locked', { n: locked })}</div>
     <div class="summary-line status-warn">${tr('summary_failed', { n: failed })}</div>`;
   results.filter(r => r.status === 'error').forEach(r => {

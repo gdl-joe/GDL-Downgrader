@@ -256,3 +256,55 @@ test('runBatch uses per-file password from passwords map', async () => {
   });
   assert.strictEqual(usedPassword, 'pw123');
 });
+
+const { findOtherFiles, copyOtherFiles } = require('../lib/downgrade');
+
+// Bibliothek mit Grafiken, Text und leerem Ordner neben den .gsm-Objekten
+function makeMixedLibrary() {
+  const root = makeLibrary();
+  const img = path.join(root, 'sub', 'images');
+  fs.mkdirSync(img);
+  fs.writeFileSync(path.join(img, 'icon.png'), 'PNGDATA');
+  fs.writeFileSync(path.join(root, 'preview.jpg'), 'JPGDATA');
+  fs.mkdirSync(path.join(root, 'empty'));
+  return root;
+}
+
+test('findOtherFiles lists all non-.gsm files and all folders', () => {
+  const root = makeMixedLibrary();
+  const { dirs, files } = findOtherFiles(root);
+  assert.deepStrictEqual(files.map(f => f.rel).sort(), [
+    'preview.jpg', path.join('sub', 'images', 'icon.png'), path.join('sub', 'notes.txt')
+  ].sort());
+  assert.deepStrictEqual(dirs.sort(), ['empty', 'sub', path.join('sub', 'images')].sort());
+});
+
+test('findOtherFiles on a single file returns nothing', () => {
+  const root = makeMixedLibrary();
+  const { dirs, files } = findOtherFiles(path.join(root, 'a.gsm'));
+  assert.strictEqual(dirs.length, 0);
+  assert.strictEqual(files.length, 0);
+});
+
+test('copyOtherFiles mirrors non-.gsm files and empty folders into destDir', () => {
+  const root = makeMixedLibrary();
+  const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'out-'));
+  const res = copyOtherFiles(root, dest);
+  assert.ok(res.every(r => r.status === 'copied'));
+  assert.strictEqual(res.length, 3);
+  assert.strictEqual(fs.readFileSync(path.join(dest, 'sub', 'images', 'icon.png'), 'utf8'), 'PNGDATA');
+  assert.strictEqual(fs.readFileSync(path.join(dest, 'preview.jpg'), 'utf8'), 'JPGDATA');
+  assert.ok(fs.statSync(path.join(dest, 'empty')).isDirectory());
+  // .gsm werden hier NICHT kopiert — die entstehen nur über den Downgrade
+  assert.ok(!fs.existsSync(path.join(dest, 'a.gsm')));
+});
+
+test('copyOtherFiles skips destDir when it lies inside the source', () => {
+  const root = makeMixedLibrary();
+  const dest = path.join(root, 'out');
+  fs.mkdirSync(dest);
+  fs.writeFileSync(path.join(dest, 'old.png'), 'OLD');
+  const res = copyOtherFiles(root, dest);
+  assert.ok(!res.some(r => r.rel.startsWith('out')));
+  assert.ok(!fs.existsSync(path.join(dest, 'out')));
+});

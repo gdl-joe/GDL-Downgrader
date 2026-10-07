@@ -4,6 +4,19 @@ Alle nennenswerten Änderungen am GDL Downgrader. Format nach
 [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [1.0.1] – 2026-10-07
+
+### Geändert
+- Electron 31.7.7 → 44.7.0. macOS (XProtect) stufte die Standard-Binary von
+  Electron 31.7.7 fälschlich als Malware ein und löschte sie. Electron 44 setzt
+  **macOS 13 (Ventura) oder neuer** voraus (bisher macOS 10.15).
+
+### Behoben
+- Beim Downgrade eines Ordners wurden nur die `.gsm`-Objekte ins Zielverzeichnis
+  geschrieben; Grafiken und alle anderen Dateien fehlten. Jetzt werden alle übrigen
+  Dateien und auch leere Ordner unverändert in derselben Struktur übernommen. Die
+  Überschreiben-Abfrage berücksichtigt sie ebenfalls.
+
 ## [1.0.0] – 2026-06-27
 
 Erste Veröffentlichung.

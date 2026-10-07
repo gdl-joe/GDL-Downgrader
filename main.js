@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('node:fs');
 const os = require('node:os');
 const { scanConverters, detectGsmVersion } = require('./lib/converters');
-const { findGsmFiles, runBatch, buildDestPath } = require('./lib/downgrade');
+const { findGsmFiles, findOtherFiles, copyOtherFiles, runBatch, buildDestPath } = require('./lib/downgrade');
 const { runCommand } = require('./lib/run-command');
 
 const TEMP_ROOT = path.join(os.homedir(), 'gdl_downgrade_temp');
@@ -82,8 +82,10 @@ ipcMain.handle('analyze-source', (event, sourcePath) => {
 // Gibt true zurück, wenn fortgefahren werden darf (keine Konflikte oder bestätigt).
 // texts: { title, message ('{n}' wird ersetzt), overwrite, cancel }
 ipcMain.handle('confirm-overwrite', async (event, params) => {
-  const { files, destDir, texts } = params;
-  const existing = files.filter(f => fs.existsSync(buildDestPath(destDir, f.rel)));
+  const { files, sourcePath, destDir, texts } = params;
+  // Auch die mitkopierten Nicht-.gsm-Dateien (Grafiken etc.) prüfen.
+  const others = sourcePath ? findOtherFiles(sourcePath, destDir).files : [];
+  const existing = [...files, ...others].filter(f => fs.existsSync(buildDestPath(destDir, f.rel)));
   if (existing.length === 0) return true;
   const result = await dialog.showMessageBox(mainWindow, {
     type: 'warning',
@@ -98,9 +100,9 @@ ipcMain.handle('confirm-overwrite', async (event, params) => {
 });
 
 // Startet den Batch; streamt Fortschritt über 'batch-progress' und Log über 'batch-log'.
-// params: { files, targetConverterPath, destDir, passwords }
+// params: { files, sourcePath, targetConverterPath, destDir, passwords }
 ipcMain.handle('run-downgrade', async (event, params) => {
-  const { files, targetConverterPath, destDir, passwords } = params;
+  const { files, sourcePath, targetConverterPath, destDir, passwords } = params;
   const converters = scanConverters();
   const targetConverter = converters.find(c => c.path === targetConverterPath) || null;
   // Klarer Abbruch statt stiller Fehlschlag jeder Datei, falls der gewählte
@@ -122,7 +124,9 @@ ipcMain.handle('run-downgrade', async (event, params) => {
       commandVersions: COMMAND_VERSIONS,
       onProgress: (p) => event.sender.send('batch-progress', p)
     });
-    return results;
+    // Alle übrigen Dateien (Grafiken, Texte, …) und Ordner 1:1 ins Ziel übernehmen.
+    const copied = sourcePath ? copyOtherFiles(sourcePath, destDir) : [];
+    return [...results, ...copied];
   } finally {
     // TEMP_ROOT nach dem Lauf entfernen (per-file-Workdirs sind bereits weg).
     try { fs.rmSync(TEMP_ROOT, { recursive: true, force: true }); } catch (e) { /* ignore */ }

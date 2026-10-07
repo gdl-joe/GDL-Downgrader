@@ -14,7 +14,8 @@ und Passwort-Handling. Dunkles UI im Stil von gdlschmiede.de.
 Die aktuellen Pakete liegen auf der **[Releases-Seite](https://github.com/gdl-joe/GDL-Downgrader/releases/latest)**:
 
 - **macOS** (Intel & Apple Silicon): `GDL-Downgrader-…-universal.dmg` — von Apple signiert &
-  notarisiert, startet ohne Gatekeeper-Warnung.
+  notarisiert, startet ohne Gatekeeper-Warnung. **Benötigt macOS 13 (Ventura) oder neuer.**
+  Unter macOS 10.15–12 [Version 1.0.0](https://github.com/gdl-joe/GDL-Downgrader/releases/tag/v1.0.0) verwenden.
 - **Windows** (x64): `GDL-Downgrader-…-win-x64-portable.zip` — portabel, keine Installation;
   entpacken und `GDL Downgrader starten.cmd` doppelklicken.
 
@@ -62,7 +63,7 @@ angeboten — du wählst die gewünschte Installation selbst.
 2. **Gefundene Objekte** — Tabelle mit erkannter Quellversion und Status
    (✓ bereit / ⚠ zu neu – kein Converter / 🔒 geschützt).
 3. **Zielversion** — frei aus allen installierten Convertern wählbar.
-4. **Zielverzeichnis** — die Ordnerstruktur der Quelle wird dort 1:1 nachgebaut.
+4. **Zielverzeichnis** — die Ordnerstruktur der Quelle wird dort 1:1 nachgebaut. Alle übrigen Dateien (Grafiken, Texte usw.) und auch leere Ordner werden unverändert mit übernommen.
 5. **Passwörter** — erscheint nur, wenn beim Konvertieren geschützte Objekte auftauchen;
    Passwort pro Objekt oder ein gemeinsames Passwort für alle eingeben, dann erneut starten.
 6. **Downgrade starten** — Fortschritt und Live-Log werden angezeigt.

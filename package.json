@@ -1,6 +1,6 @@
 {
   "name": "gdl-downgrader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Downgrade Archicad GDL objects (.gsm) to a lower Archicad version via LP_XMLConverter",
   "main": "main.js",
   "author": "b-prisma / Jochen Sühlo",
@@ -8,19 +8,33 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "dist:mac": "APPLE_KEYCHAIN_PROFILE=gdl-notary electron-builder --mac && xcrun notarytool submit \"dist/GDL Downgrader-$npm_package_version-universal.dmg\" --keychain-profile gdl-notary --wait && xcrun stapler staple \"dist/GDL Downgrader-$npm_package_version-universal.dmg\""
   },
   "devDependencies": {
-    "electron": "^31.0.0",
+    "electron": "^44.7.0",
     "electron-builder": "^26.0.0"
   },
   "build": {
     "appId": "de.b-prisma.gdl-downgrader",
     "productName": "GDL Downgrader",
-    "files": ["main.js", "preload.js", "renderer.js", "i18n.js", "index.html", "styles.css", "lib/**/*", "data/**/*", "package.json"],
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "i18n.js",
+      "index.html",
+      "styles.css",
+      "lib/**/*",
+      "data/**/*",
+      "package.json"
+    ],
     "mac": {
       "target": [
-        { "target": "dmg", "arch": "universal" }
+        {
+          "target": "dmg",
+          "arch": "universal"
+        }
       ],
       "category": "public.app-category.developer-tools",
       "hardenedRuntime": true,
@@ -29,6 +43,8 @@
       "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "notarize": true
     },
-    "win": { "target": "nsis" }
+    "win": {
+      "target": "nsis"
+    }
   }
 }

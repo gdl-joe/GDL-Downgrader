@@ -1,5 +1,25 @@
 # Projektstand — GDL Downgrader
-Zuletzt aktualisiert: 2026-06-30
+Zuletzt aktualisiert: 2026-10-07
+
+## Fix: Nicht-.gsm-Dateien werden mitkopiert — 2026-10-07
+- Problem: Beim Ordner-Downgrade landeten nur `.gsm` im Ziel, Grafiken u. a. fehlten.
+- Neu in `lib/downgrade.js`: `findOtherFiles` + `copyOtherFiles` — alle übrigen Dateien
+  und leere Ordner werden 1:1 übernommen; Ziel innerhalb der Quelle wird übersprungen.
+- `main.js`: Kopie nach dem Batch, Überschreiben-Abfrage prüft auch diese Dateien.
+- Ergebnis zeigt „{n} weitere Datei(en) unverändert übernommen". 44 Tests grün.
+- Entscheidung: bei Electron bleiben (Tauri/Neutralino geprüft, Gewinn nur Größe,
+  Windows-Defender-Risiko kehrt zurück).
+- Electron 31.7.7 → 44.7.0 (XProtect löschte die Electron-31.7.7-Binary aus node_modules
+  als vermeintliche Malware). Ab jetzt Mindestanforderung macOS 13. Version → 1.0.1.
+- Hinweis Electron ≥ 42: Binary kommt nicht mehr per postinstall; in der Sandbox nachladen mit
+  `NODE_USE_ENV_PROXY=1 electron_config_cache=~/.cache/electron node node_modules/electron/install.js`.
+- Praxistest `npm start` durch Jochen: Grafiken werden mitkopiert ✅
+- macOS-DMG 1.0.1 gebaut, signiert, notarisiert, gestapelt ✅
+  (`dist/GDL Downgrader-1.0.1-universal.dmg`).
+- Notarisierungs-Zugang dauerhaft im Schlüsselbund als Profil `gdl-notary`; neuer Befehl
+  `npm run dist:mac` erledigt künftig alles in einem Schritt (siehe MACOS_SIGNING.md).
+- Offen: committen + pushen, Win-ZIP auf Windows bauen, GitHub-Release v1.0.1 anlegen
+  (Hinweis macOS 13+), Prüfsummen/Links auf der Produktseite aktualisieren.
 
 ## Was wurde gemacht
 - Vollständige Electron-App „GDL Downgrader" (macOS + Windows) von Grund auf gebaut,

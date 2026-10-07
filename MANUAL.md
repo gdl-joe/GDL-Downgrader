@@ -12,7 +12,7 @@ Archicad installation.
 
 ## 1. Requirements
 
-- **macOS** or **Windows**.
+- **macOS 13 (Ventura) or later** or **Windows**. For macOS 10.15–12, use version 1.0.0.
 - Installed Archicad converters:
   - at least **one converter as new as your newest object** (newer converters can read older
     objects — an AC21 object does not require an AC21 converter), and
@@ -55,7 +55,7 @@ npm start
    - 🔒 protected (after a first attempt, see section 5)
 3. **Target version** – freely selectable; all installed converters are offered. If the
    target version equals the source version, the object is only recompiled without `-compatibility`.
-4. **Target directory** – the folder structure of the source is reproduced 1:1 there.
+4. **Target directory** – the folder structure of the source is reproduced 1:1 there. All other files (images, texts, etc.) and empty folders are copied over unchanged.
 5. **Passwords** – appears only when protected objects are encountered (section 5).
 6. **Start downgrade** – progress bar and live log. Two steps per object:
    Decompile with the source converter (`libpart2xml -compatibility <target>`), then
