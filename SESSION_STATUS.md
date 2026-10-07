@@ -21,8 +21,19 @@ Zuletzt aktualisiert: 2026-10-07
 - Commit 7c2768b gepusht; GitHub-Release **v1.0.1** veröffentlicht (latest) mit
   `GDL-Downgrader-1.0.1-universal.dmg`, SHA-256 `3ada4af3…296a1`, Hinweis macOS 13+.
   README/HANDBUCH (DE/EN) nennen macOS 13+ und verweisen für 10.15–12 auf v1.0.0.
-- Offen: Win-ZIP 1.0.1 auf Windows bauen und ans Release hängen (Release-Text verweist
-  bis dahin auf das 1.0.0-ZIP), Produktseite b-prisma.de (Links, Prüfsummen, macOS 13+).
+- Windows-ZIP 1.0.1 auf dem Windows-Rechner gebaut, getestet und von Jochen ans Release
+  gehängt: `GDL-Downgrader-1.0.1-win-x64-portable.zip` (151 MB),
+  SHA-256 `6897ff139db7b7ca15c7d5f2f6f3f2a684556c4800c13405ba786dde4dba7f2a`.
+  Release-Text v1.0.1 entsprechend aktualisiert (beide Prüfsummen).
+- Windows-Stolpersteine (jetzt in WINDOWS_BUILD.md): PowerShell blockiert `npm` →
+  `npm.cmd install`; Skript mit `powershell -ExecutionPolicy Bypass -File …` starten.
+  Build-Skript benennt das ZIP jetzt nach der App-Version (vorher Electron-Version).
+- macOS-Signierung: Zertifikat liegt im Schlüsselbund, Notarisierungs-Zugang jetzt dauerhaft
+  als Profil `gdl-notary` (`.p8`, Key ID, Issuer ID). Issuer ID: App Store Connect →
+  ••• → Benutzer und Zugriff → Integrationen. Ab jetzt nur `npm run dist:mac`
+  (noch ungetestet – beim nächsten Build beobachten).
+- Offen: Produktseite b-prisma.de aktualisieren (Download-Links, Prüfsummen, Hinweis
+  macOS 13+). App-Icon weiterhin Standard-Electron.
 
 ## Was wurde gemacht
 - Vollständige Electron-App „GDL Downgrader" (macOS + Windows) von Grund auf gebaut,

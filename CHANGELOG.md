@@ -11,6 +11,10 @@ Versionierung nach [SemVer](https://semver.org/lang/de/).
   Electron 31.7.7 fälschlich als Malware ein und löschte sie. Electron 44 setzt
   **macOS 13 (Ventura) oder neuer** voraus (bisher macOS 10.15).
 
+### Build
+- Neuer Befehl `npm run dist:mac` (Bauen, Signieren, Notarisieren, Stapeln in einem Schritt).
+- Windows-Skript benennt das ZIP nach der App-Version (`GDL-Downgrader-<ver>-win-x64-portable.zip`).
+
 ### Behoben
 - Beim Downgrade eines Ordners wurden nur die `.gsm`-Objekte ins Zielverzeichnis
   geschrieben; Grafiken und alle anderen Dateien fehlten. Jetzt werden alle übrigen
