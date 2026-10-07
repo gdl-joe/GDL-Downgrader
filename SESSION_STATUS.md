@@ -32,8 +32,9 @@ Zuletzt aktualisiert: 2026-10-07
   als Profil `gdl-notary` (`.p8`, Key ID, Issuer ID). Issuer ID: App Store Connect →
   ••• → Benutzer und Zugriff → Integrationen. Ab jetzt nur `npm run dist:mac`
   (noch ungetestet – beim nächsten Build beobachten).
-- Offen: Produktseite b-prisma.de aktualisieren (Download-Links, Prüfsummen, Hinweis
-  macOS 13+). App-Icon weiterhin Standard-Electron.
+- Produktseite b-prisma.de von Jochen aktualisiert: neue Dateien auf eigenem Server
+  (Download-Zähler läuft über den eigenen Server, nicht GitHub), neue Prüfsummen ✅
+- Offen: App-Icon weiterhin Standard-Electron; `npm run dist:mac` beim nächsten Build testen.
 
 ## Was wurde gemacht
 - Vollständige Electron-App „GDL Downgrader" (macOS + Windows) von Grund auf gebaut,
