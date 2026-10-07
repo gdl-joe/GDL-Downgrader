@@ -18,8 +18,11 @@ Zuletzt aktualisiert: 2026-10-07
   (`dist/GDL Downgrader-1.0.1-universal.dmg`).
 - Notarisierungs-Zugang dauerhaft im Schlüsselbund als Profil `gdl-notary`; neuer Befehl
   `npm run dist:mac` erledigt künftig alles in einem Schritt (siehe MACOS_SIGNING.md).
-- Offen: committen + pushen, Win-ZIP auf Windows bauen, GitHub-Release v1.0.1 anlegen
-  (Hinweis macOS 13+), Prüfsummen/Links auf der Produktseite aktualisieren.
+- Commit 7c2768b gepusht; GitHub-Release **v1.0.1** veröffentlicht (latest) mit
+  `GDL-Downgrader-1.0.1-universal.dmg`, SHA-256 `3ada4af3…296a1`, Hinweis macOS 13+.
+  README/HANDBUCH (DE/EN) nennen macOS 13+ und verweisen für 10.15–12 auf v1.0.0.
+- Offen: Win-ZIP 1.0.1 auf Windows bauen und ans Release hängen (Release-Text verweist
+  bis dahin auf das 1.0.0-ZIP), Produktseite b-prisma.de (Links, Prüfsummen, macOS 13+).
 
 ## Was wurde gemacht
 - Vollständige Electron-App „GDL Downgrader" (macOS + Windows) von Grund auf gebaut,
