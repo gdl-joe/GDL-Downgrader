@@ -26,8 +26,8 @@ Auf einem **Windows-Rechner** (PowerShell), im Projektordner:
 ```powershell
 git clone https://github.com/gdl-joe/GDL-Downgrader.git   # oder: git pull
 cd GDL-Downgrader
-npm install
-.\scripts\build-portable-win.ps1
+npm.cmd install
+powershell -ExecutionPolicy Bypass -File .\scripts\build-portable-win.ps1
 ```
 
 Das Skript [`scripts/build-portable-win.ps1`](scripts/build-portable-win.ps1):
@@ -38,7 +38,8 @@ Das Skript [`scripts/build-portable-win.ps1`](scripts/build-portable-win.ps1):
 4. kopiert die App (`main.js`, `preload.js`, `renderer.js`, `i18n.js`, `index.html`,
    `styles.css`, `package.json`, `lib/`, `data/`) nach `resources\app`,
 5. legt den Starter `GDL Downgrader starten.cmd` und eine `LIESMICH.txt` an,
-6. packt alles zu `dist-portable\GDL-Downgrader-Win-x64-<version>.zip`.
+6. packt alles zu `dist-portable\GDL-Downgrader-<App-Version>-win-x64-portable.zip`
+   (fertig benannt für das GitHub-Release).
 
 Funktioniert auf ARM- und x64-Windows (die x64-Runtime wird geladen, nicht vom Build-Host
 kopiert). `dist-portable/` und `build-cache/` sind gitignored.

@@ -16,7 +16,8 @@
     4. App-Dateien nach resources/app kopieren (Electron laedt diese statt der
        Default-App).
     5. Start-Verknuepfung "GDL Downgrader.lnk" -> electron.exe anlegen.
-    6. Alles zu dist-portable\GDL-Downgrader-Win-x64-<version>.zip packen.
+    6. Alles zu dist-portable\GDL-Downgrader-<App-Version>-win-x64-portable.zip packen
+       (gleicher Name wie das Asset im GitHub-Release).
 
   Aufruf (Windows PowerShell):  .\scripts\build-portable-win.ps1
 #>
@@ -35,6 +36,10 @@ if (Test-Path $verFile) {
   $version = (& node -p "require('electron/package.json').version").Trim()
 }
 Write-Host "Electron-Version: $version"
+
+# App-Version aus package.json (fuer den ZIP-Namen)
+$appVersion = (Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json).version
+Write-Host "App-Version: $appVersion"
 
 # 2) Offizielle Runtime laden (Cache)
 $cacheDir = Join-Path $root 'build-cache'
@@ -103,7 +108,7 @@ Zum Entfernen einfach den Ordner loeschen.
 Set-Content -Path (Join-Path $stageDir 'LIESMICH.txt') -Value $readme -Encoding utf8
 
 # 6) ZIP packen
-$zipOut = Join-Path $outDir "$stageName-$version.zip"
+$zipOut = Join-Path $outDir "GDL-Downgrader-$appVersion-win-$arch-portable.zip"
 if (Test-Path $zipOut) { Remove-Item $zipOut -Force }
 Write-Host "Packe $zipOut ..."
 Compress-Archive -Path (Join-Path $stageDir '*') -DestinationPath $zipOut -Force
